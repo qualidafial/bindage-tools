@@ -1,7 +1,13 @@
 package com.overstock.bindme {
+import mx.binding.utils.ChangeWatcher;
+
 import org.hamcrest.assertThat;
+import org.hamcrest.collection.array;
+import org.hamcrest.number.greaterThan;
+import org.hamcrest.number.lessThan;
 import org.hamcrest.object.equalTo;
 import org.hamcrest.object.instanceOf;
+import org.hamcrest.text.re;
 
 public class BindTest {
 
@@ -20,7 +26,7 @@ public class BindTest {
   [Test]
   public function fromProperty():void {
     assertThat(Bind.fromProperty(source, "foo"),
-               instanceOf(IOngoingBinding));
+               instanceOf(IPipeline));
   }
 
   [Test]
@@ -213,7 +219,6 @@ public class BindTest {
   }
 
   [Test]
-  [Ignore]
   public function fromPropertyConvertToProperty():void {
     source.foo = "abc";
 
@@ -230,7 +235,277 @@ public class BindTest {
                equalTo("XYZ"));
   }
 
-  private function toUpperCase( value:String ):String {
+  [Test]
+  public function fromPropertyConvertToFunction():void {
+    source.foo = "abc";
+
+    Bind.fromProperty(source, "foo")
+        .convert(toUpperCase)
+        .toFunction(target.receive);
+
+    assertThat(target.receiveCount,
+               equalTo(1));
+    assertThat(target.receivedValues,
+               array("ABC"));
+
+    source.foo = "xyz";
+
+    assertThat(target.receiveCount,
+               equalTo(2));
+    assertThat(target.receivedValues,
+               array("XYZ"));
+  }
+
+  [Test]
+  public function fromPropertyValidateToProperty():void {
+    source.foo = 1;
+    target.bar = -1;
+
+    Bind.fromProperty(source, "foo")
+        .validate(greaterThan(1))
+        .toProperty(target, "bar");
+
+    assertThat(target.bar,
+               equalTo(-1)); // validation fails, no change
+
+    source.foo = 2;
+
+    assertThat(target.bar,
+               equalTo(2)); // validation passes, new value set
+
+    source.foo = 0;
+
+    assertThat(target.bar,
+               equalTo(2)); // validation fails, no change
+  }
+
+  [Test]
+  public function fromPropertyValidateConvertToProperty():void {
+    source.foo = "foo";
+    target.bar = -1;
+
+    var integerPattern:RegExp = /\d+/;
+
+    Bind.fromProperty(source, "foo")
+        .validate(re(integerPattern))
+        .convert(toNumber)
+        .toProperty(target, "bar");
+
+    assertThat(target.bar,
+               equalTo(-1)); // validation failed, no change
+
+    source.foo = "10";
+
+    assertThat(target.bar,
+               equalTo(10)); // validation passed, set new value
+  }
+
+  [Test]
+  public function fromPropertyConvertValidateToProperty():void {
+    source.foo = "1";
+    target.bar = -1;
+
+    Bind.fromProperty(source, "foo")
+        .convert(toNumber)
+        .validate(greaterThan(5))
+        .toProperty(target, "bar");
+
+    assertThat(target.bar,
+               equalTo(-1)); // validation failed, no change
+
+    source.foo = "6";
+
+    assertThat(target.bar,
+               equalTo(6)); // validation passed, set new value
+  }
+
+  [Test]
+  public function fromPropertyValidateConvertValidateToProperty():void {
+    source.foo = "abc";
+    target.bar = 10;
+
+    var integerPattern:RegExp = /\d+/;
+
+    Bind.fromProperty(source, "foo")
+        .validate(re(integerPattern))
+        .convert(toNumber)
+        .validate(greaterThan(5))
+        .toProperty(target, "bar");
+
+    assertThat(target.bar,
+               equalTo(10)); // regexp validation failed, no change
+
+    source.foo = "5";
+
+    assertThat(target.bar,
+               equalTo(10)); // range validation failed, no change
+
+    source.foo = "6";
+
+    assertThat(target.bar,
+               equalTo(6)); // both validators passed, set new value
+  }
+
+  [Test]
+  public function twoWay():void {
+    source.foo = 10;
+    target.bar = null;
+
+    Bind.twoWay(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(target, "bar"));
+
+    assertThat(target.bar,
+               equalTo(10));
+
+    source.foo = 11;
+
+    assertThat(target.bar,
+               equalTo(11));
+
+    target.bar = 12;
+
+    assertThat(source.foo,
+               equalTo(12));
+  }
+
+  [Test]
+  public function twoWayWithConvertAndValidate():void {
+    source.foo = null;
+    target.bar = "dummy";
+
+    var integerPattern:RegExp = /\d+/;
+
+    Bind.twoWay(
+        Bind.fromProperty(source, "foo")
+            .convert(numberToString),
+        Bind.fromProperty(target, "bar")
+            .validate(re(integerPattern))
+            .convert(toNumber)
+            .validate(lessThan(10)));
+  }
+
+  [Test]
+  public function twoWayMutuallyShortCircuits():void {
+    source.foo = "abc";
+    target.bar = null;
+
+    Bind.twoWay(
+        Bind.fromProperty(source, "foo")
+            .convert(toUpperCase),
+        Bind.fromProperty(target, "bar"));
+
+    assertThat(target.bar,
+               equalTo("ABC"));
+    assertThat(source.foo,
+               equalTo("abc")); // would be uppercase if target-to-source binding executed
+
+    target.bar = "xyz";
+
+    assertThat(source.foo,
+               equalTo("xyz"));
+    assertThat(target.bar,
+               equalTo("xyz")); // would be uppercase if source-to-target binding executed
+
+  }
+
+  [Test]
+  public function collectFromPropertyToProperty():void {
+    function createBindings():void {
+      Bind.fromProperty(source, "foo")
+          .toProperty(target, "bar");
+    }
+
+    var collected:Array = Bind.collect(createBindings);
+
+    assertThat(collected,
+               array(
+                   instanceOf(ChangeWatcher)));
+
+    source.foo = 1;
+    assertThat(target.bar,
+               equalTo(1));
+
+    ChangeWatcher(collected[0]).unwatch();
+
+    source.foo = 2;
+    assertThat(target.bar,
+               equalTo(1)); // unchanged, change watcher is disposed
+  }
+
+  [Test]
+  public function collectFromPropertyToFunction():void {
+    function createBindings():void {
+      Bind.fromProperty(source, "foo")
+          .toFunction(target.receive);
+    }
+
+    var collected:Array = Bind.collect(createBindings);
+
+    assertThat(collected,
+               array(
+                   instanceOf(ChangeWatcher)));
+
+    assertThat(target.receiveCount,
+               equalTo(1));
+
+    source.foo = 1;
+    assertThat(target.receiveCount,
+               equalTo(2));
+
+    ChangeWatcher(collected[0]).unwatch();
+
+    source.foo = 2;
+    assertThat(target.receiveCount,
+               equalTo(2));
+  }
+
+  [Test]
+  public function collectTwoWay():void {
+    function createBindings():void {
+      Bind.twoWay(
+          Bind.fromProperty(source, "foo"),
+          Bind.fromProperty(target, "bar"));
+    }
+
+    var collected:Array = Bind.collect(createBindings);
+
+    assertThat(collected,
+               array(
+                   instanceOf(ChangeWatcher),
+                   instanceOf(ChangeWatcher)));
+
+    source.foo = 1;
+    assertThat(target.bar,
+               equalTo(1));
+
+    target.bar = 2;
+    assertThat(source.foo,
+               equalTo(2));
+
+    ChangeWatcher(collected[0]).unwatch();
+    ChangeWatcher(collected[1]).unwatch();
+
+    source.foo = 3;
+    assertThat(target.bar,
+               equalTo(2)); // unchanged, change watcher is disposed
+
+    target.bar = 4;
+    assertThat(source.foo,
+               equalTo(3)); // unchanged, change watcher is disposed
+  }
+
+  private static function numberToString( value:* ):String {
+    return value == null
+        ? null
+        : String(value);
+  }
+
+  private static function toNumber( value:String ):* {
+    return Number(value);
+  }
+
+  private static function toUpperCase( value:String ):String {
     return value.toUpperCase();
   }
 }
