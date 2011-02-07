@@ -8,8 +8,11 @@ public class BindTest {
   private var source:Bean;
   private var target:Bean;
 
+  function BindTest() {
+  }
+
   [Before]
-  public function setUp() {
+  public function setUp():void {
     source = new Bean();
     target = new Bean();
   }
