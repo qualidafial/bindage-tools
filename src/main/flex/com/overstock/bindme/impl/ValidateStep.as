@@ -25,7 +25,7 @@ public class ValidateStep implements IPipelineStep {
 
   public function wrapStep( nextStep:Function ):Function {
     return function( value:* ):void {
-      var matchValue = value;
+      var matchValue:* = value;
 
       if (attribute != null) {
         var attributeArgs:Array = value is Array

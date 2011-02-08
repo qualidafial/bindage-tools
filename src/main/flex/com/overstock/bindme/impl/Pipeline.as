@@ -4,8 +4,6 @@ import com.overstock.bindme.IPipelineStep;
 
 import flash.events.Event;
 
-import org.hamcrest.Matcher;
-
 public class Pipeline implements IPipeline {
   private var steps:Array;
 
