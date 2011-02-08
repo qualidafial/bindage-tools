@@ -12,7 +12,7 @@ public class MultiPipeline extends Pipeline {
     var args:Array = new Array(sources.length);
 
     function pipelineRunner():void {
-      pipeline.apply(null, args);
+      pipeline(args.slice());
     }
 
     var runner:Function = pipelineRunner;

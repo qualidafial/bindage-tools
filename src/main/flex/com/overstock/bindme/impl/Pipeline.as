@@ -98,17 +98,16 @@ public class Pipeline implements IPipeline {
 
   private static function preventRecursion( pipeline:Function ):Function {
     var running:Boolean = false;
-    var guardRecurse:Function = function( ...values ):void {
+    return function( value:* ):void {
       if (!running) {
         try {
           running = true;
-          pipeline.apply(null, values);
+          pipeline(value);
         } finally {
           running = false;
         }
       }
     }
-    return guardRecurse;
   }
 
   protected function pipelineRunner( pipeline:Function ):Function {

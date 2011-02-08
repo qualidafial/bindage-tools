@@ -524,7 +524,36 @@ public class BindTest {
         Bind.fromProperty(source, "foo"),
         Bind.fromProperty(source, "bar")
         )
-        .convert(add)
+        .toProperty(target, "baz");
+
+    assertThat(target.baz,
+               array(2,
+                     3));
+
+    source.foo = 4;
+
+    assertThat(target.baz,
+               array(4,
+                     3));
+
+    source.bar = 6;
+
+    assertThat(target.baz,
+               array(4,
+                     6));
+  }
+
+  [Test]
+  public function fromAllConvert():void {
+    source.foo = 2;
+    source.bar = 3;
+    target.baz = null;
+
+    Bind.fromAll(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(source, "bar")
+        )
+        .convert(sum)
         .toProperty(target, "baz");
 
     assertThat(target.baz,
@@ -541,6 +570,55 @@ public class BindTest {
                equalTo(10));
   }
 
+  [Test]
+  public function fromAllValidate():void {
+    source.foo = 2;
+    source.bar = 3;
+    target.baz = null;
+
+    Bind.fromAll(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(source, "bar")
+        )
+        .validate(array(greaterThan(0),
+                        lessThan(10)))
+        .toProperty(target, "baz");
+
+    assertThat(target.baz,
+               array(2,
+                     3));
+
+    source.foo = 1;
+    assertThat(target.baz,
+               array(1,
+                     3));
+
+    source.bar = 9;
+    assertThat(target.baz,
+               array(1,
+                     9));
+
+    source.foo = 0; // fails validation
+    assertThat(target.baz,
+               array(1,
+                     9)); // no change
+
+    source.foo = 3;
+    assertThat(target.baz,
+               array(3,
+                     9));
+
+    source.bar = 10; // fails validation
+    assertThat(target.baz,
+               array(3,
+                     9)); // no change
+
+    source.bar = 7;
+    assertThat(target.baz,
+               array(3,
+                     7));
+  }
+
   private static function numberToString( value:* ):String {
     return value == null
         ? null
@@ -555,7 +633,7 @@ public class BindTest {
     return value.toUpperCase();
   }
 
-  private function add( a:*,
+  private function sum( a:*,
                         b:* ):* {
     return a + b;
   }

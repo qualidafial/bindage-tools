@@ -3,9 +3,6 @@ import com.overstock.bindme.*;
 
 import mx.binding.utils.ChangeWatcher;
 
-import org.hamcrest.Matcher;
-import org.hamcrest.collection.array;
-
 public class PropertyPipeline extends Pipeline implements IPropertyPipeline {
 
   private var source:Object;
@@ -25,10 +22,6 @@ public class PropertyPipeline extends Pipeline implements IPropertyPipeline {
     this.property = property;
   }
 
-  override public function validate( condition:Matcher ):IPipeline {
-    return super.validate(array(condition));
-  }
-
   override protected function pipelineRunner( pipeline:Function ):Function {
     return function():void {
       var value:Object = getProperty(source, toChain(property));
@@ -37,7 +30,9 @@ public class PropertyPipeline extends Pipeline implements IPropertyPipeline {
   }
 
   override public function watch( runner:Function ):void {
-    var watcher:ChangeWatcher = ChangeWatcher.watch(source, toChain(property), runner);
+    var watcher:ChangeWatcher = ChangeWatcher.watch(source,
+                                                    toChain(property),
+                                                    runner);
     Bind.changeWatcherCreated(watcher);
   }
 

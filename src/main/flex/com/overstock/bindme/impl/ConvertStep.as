@@ -10,7 +10,11 @@ public class ConvertStep implements IPipelineStep {
   }
 
   public function wrapStep( nextStep:Function ):Function {
-    return function( ...values ):* {
+    return function( value:* ):* {
+      var values:Array = value is Array
+          ? value
+          : [value];
+
       var convertedValue:* = converter.apply(null, values);
       nextStep(convertedValue);
     }
