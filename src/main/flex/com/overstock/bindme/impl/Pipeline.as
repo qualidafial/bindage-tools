@@ -26,7 +26,7 @@ public class Pipeline implements IPipeline {
     return append(new ConvertStep(converter));
   }
 
-  public function validate( condition:Matcher ):IPipeline {
+  public function validate( ...condition ):IPipeline {
     return append(new ValidateStep(condition));
   }
 

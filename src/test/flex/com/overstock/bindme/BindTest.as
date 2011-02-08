@@ -619,6 +619,34 @@ public class BindTest {
                      7));
   }
 
+  [Test]
+  public function fromAllValidateWithPreconversion():void {
+    source.foo = 1;
+    source.bar = 2;
+
+    Bind.fromAll(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(source, "bar")
+        )
+        .validate(sum, lessThan(5))
+        .toProperty(target, "baz");
+
+    assertThat(target.baz,
+               array(1, 2));
+
+    source.foo = 2;
+    assertThat(target.baz,
+               array(2, 2));
+
+    source.bar = 3; // sum is not out of bounds
+    assertThat(target.baz,
+               array(2, 2)); // no change
+
+    source.foo = -1;
+    assertThat(target.baz,
+               array(-1, 3));
+  }
+
   private static function numberToString( value:* ):String {
     return value == null
         ? null
@@ -633,9 +661,12 @@ public class BindTest {
     return value.toUpperCase();
   }
 
-  private function sum( a:*,
-                        b:* ):* {
-    return a + b;
+  private function sum( ... values ):* {
+    var result:Number = 0;
+    for each (var value:Number in values) {
+      result += value;
+    }
+    return result;
   }
 }
 
