@@ -1,109 +1,48 @@
 package com.overstock.bindme.impl {
 import com.overstock.bindme.*;
 
-import mx.binding.utils.BindingUtils;
 import mx.binding.utils.ChangeWatcher;
 
 import org.hamcrest.Matcher;
+import org.hamcrest.collection.array;
 
-public class PropertyPipeline implements IPropertyPipeline {
+public class PropertyPipeline extends Pipeline implements IPropertyPipeline {
 
   private var source:Object;
   private var property:String;
 
-  private var steps:Array = [];
-
-  public function sourceSetter():Function {
-    return propertySetter(source, property);
-  }
-
   public function PropertyPipeline( source:Object,
                                     property:String ) {
+    if (null == source) {
+      throw new ArgumentError("source was null");
+    }
+
+    if (null == property) {
+      throw new ArgumentError("property was null");
+    }
+
     this.source = source;
     this.property = property;
   }
 
-  private static function toChain( property:String ):Array {
-    return property.split(".");
+  override public function validate( condition:Matcher ):IPipeline {
+    return super.validate(array(condition));
   }
 
-  public function append( step:IPipelineStep ):IPipeline {
-    steps.push(step);
-    return this;
+  override protected function pipelineRunner( pipeline:Function ):Function {
+    return function():void {
+      var value:Object = getProperty(source, toChain(property));
+      pipeline(value);
+    };
   }
 
-  public function convert( converter:Function ):IPipeline {
-    return append(new ConvertStep(converter));
+  override public function watch( runner:Function ):void {
+    var watcher:ChangeWatcher = ChangeWatcher.watch(source, toChain(property), runner);
+    Bind.changeWatcherCreated(watcher);
   }
 
-  public function validate( condition:Matcher ):IPipeline {
-    return append(new ValidateStep(condition));
-  }
-
-  public function toProperty( target:Object,
-                              property:String ):IPipeline {
-    var setter:Function = propertySetter(target, property);
-    return toFunction(setter);
-  }
-
-  public function propertySetter( target:Object,
-                                  property:String ):Function {
-    var propertyChain:Array = toChain(property);
-    var parentProperties:Array = propertyChain.slice(0, propertyChain.length - 1);
-    var leafProperty:String = propertyChain[propertyChain.length - 1];
-    return function( value:* ):void {
-      var host:Object = target;
-      for each (var parentProperty:String in parentProperties) {
-        host = host[parentProperty];
-        if (host == null) {
-          break;
-        }
-      }
-
-      if (host != null) {
-        host[leafProperty] = value;
-      }
-    }
-  }
-
-  public function toFunction( func:Function ):IPipeline {
-    var pipeline:Function = buildPipeline(func);
-
-    var changeWatcher:ChangeWatcher = BindingUtils.bindSetter(pipeline,
-                                                              this.source,
-                                                              toChain(this.property));
-
-    Bind.changeWatcherCreated(changeWatcher);
-
-    return this;
-  }
-
-  private function buildPipeline( endPoint:Function ):Function {
-    var pipeline:Function = endPoint;
-
-    for (var i:int = steps.length - 1; i >= 0; i--) {
-      var step:IPipelineStep = steps[i];
-      pipeline = step.wrapStep(pipeline);
-    }
-
-    pipeline = preventRecursion(pipeline);
-
-    return pipeline;
-  }
-
-  private static function preventRecursion( pipeline:Function ):Function {
-    var running:Boolean = false;
-    var guardRecurse:Function = function( value:* ):void {
-      if (!running) {
-        try {
-          running = true;
-          pipeline(value);
-        } finally {
-          running = false;
-        }
-      }
-    }
-    return guardRecurse;
+  public function sourceSetter():Function {
+    return propertySetter(source, property);
   }
 
 }

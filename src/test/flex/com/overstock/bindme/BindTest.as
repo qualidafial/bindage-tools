@@ -419,8 +419,7 @@ public class BindTest {
     var collected:Array = Bind.collect(createBindings);
 
     assertThat(collected,
-               array(
-                   instanceOf(ChangeWatcher)));
+               array(instanceOf(ChangeWatcher)));
 
     source.foo = 1;
     assertThat(target.bar,
@@ -443,8 +442,7 @@ public class BindTest {
     var collected:Array = Bind.collect(createBindings);
 
     assertThat(collected,
-               array(
-                   instanceOf(ChangeWatcher)));
+               array(instanceOf(ChangeWatcher)));
 
     assertThat(target.receiveCount,
                equalTo(1));
@@ -471,9 +469,8 @@ public class BindTest {
     var collected:Array = Bind.collect(createBindings);
 
     assertThat(collected,
-               array(
-                   instanceOf(ChangeWatcher),
-                   instanceOf(ChangeWatcher)));
+               array(instanceOf(ChangeWatcher),
+                     instanceOf(ChangeWatcher)));
 
     source.foo = 1;
     assertThat(target.bar,
@@ -495,6 +492,55 @@ public class BindTest {
                equalTo(3)); // unchanged, change watcher is disposed
   }
 
+  [Test]
+  public function collectNested():void {
+    var expected:Array;
+
+    function createBindingsInner():void {
+      Bind.fromProperty(source, "foo")
+          .toProperty(target, "bar");
+    }
+
+    function createBindingsOuter():void {
+      expected = Bind.collect(createBindingsInner);
+    }
+
+    var actual:Array = Bind.collect(createBindingsOuter);
+
+    assertThat(expected,
+               array(instanceOf(ChangeWatcher)));
+
+    assertThat(actual,
+               array(expected[0]));
+  }
+
+  [Test]
+  public function fromAll():void {
+    source.foo = 2;
+    source.bar = 3;
+    target.baz = null;
+
+    Bind.fromAll(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(source, "bar")
+        )
+        .convert(add)
+        .toProperty(target, "baz");
+
+    assertThat(target.baz,
+               equalTo(5));
+
+    source.foo = 4;
+
+    assertThat(target.baz,
+               equalTo(7));
+
+    source.bar = 6;
+
+    assertThat(target.baz,
+               equalTo(10));
+  }
+
   private static function numberToString( value:* ):String {
     return value == null
         ? null
@@ -507,6 +553,11 @@ public class BindTest {
 
   private static function toUpperCase( value:String ):String {
     return value.toUpperCase();
+  }
+
+  private function add( a:*,
+                        b:* ):* {
+    return a + b;
   }
 }
 

@@ -1,4 +1,5 @@
 package com.overstock.bindme {
+import com.overstock.bindme.impl.MultiPipeline;
 import com.overstock.bindme.impl.PropertyPipeline;
 
 import mx.binding.utils.ChangeWatcher;
@@ -7,37 +8,36 @@ public class Bind {
   private static var collected:Array;
 
   public static function collect( func:Function ):Array {
-    var oldCollected:Array = collected;
-    collected = [];
+    var oldCollected:Array = Bind.collected;
+
+    Bind.collected = [];
 
     var result:Array;
     try {
       func();
-      result = collected;
+      result = Bind.collected;
     } finally {
-      collected = oldCollected;
+      Bind.collected = oldCollected == null
+          ? null
+          : oldCollected.concat(Bind.collected);
     }
 
     return result;
   }
 
-  public static function changeWatcherCreated(changeWatcher:ChangeWatcher):void {
-    if (collected != null) {
-      collected.push(changeWatcher);
+  public static function changeWatcherCreated( changeWatcher:ChangeWatcher ):void {
+    if (Bind.collected != null) {
+      Bind.collected.push(changeWatcher);
     }
   }
 
   public static function fromProperty( source:Object,
                                        property:String ):IPropertyPipeline {
-    if (null == source) {
-      throw new ArgumentError("source was null");
-    }
-
-    if (null == property) {
-      throw new ArgumentError("property was null");
-    }
-
     return new PropertyPipeline(source, property);
+  }
+
+  public static function fromAll( ... pipelines ):IPipeline {
+    return new MultiPipeline(pipelines);
   }
 
   public static function twoWay( source:IPipeline,

@@ -12,9 +12,9 @@ public class ValidateStep implements IPipelineStep {
   }
 
   public function wrapStep( nextStep:Function ):Function {
-    return function(value:*):void {
-      if (condition.matches(value)) {
-        nextStep(value);
+    return function( ...values ):void {
+      if (condition.matches(values)) {
+        nextStep.apply(null, values);
       }
     }
   }

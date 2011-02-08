@@ -10,8 +10,8 @@ public class ConvertStep implements IPipelineStep {
   }
 
   public function wrapStep( nextStep:Function ):Function {
-    return function( value:* ):* {
-      var convertedValue:* = converter(value);
+    return function( ...values ):* {
+      var convertedValue:* = converter.apply(null, values);
       nextStep(convertedValue);
     }
   }
