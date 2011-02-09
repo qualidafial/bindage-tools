@@ -57,6 +57,10 @@
           </compiledLocales>
           <configurationReport>true</configurationReport>
           <strict>true</strict>
+
+          <keepAs3Metadatas>
+            <keepAs3Metadata>DataBinding</keepAs3Metadata>
+          </keepAs3Metadatas>
         </configuration>
       </plugin>
     </plugins>
