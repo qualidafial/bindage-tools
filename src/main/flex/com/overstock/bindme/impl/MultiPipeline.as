@@ -5,7 +5,16 @@ public class MultiPipeline extends Pipeline {
   private var sources:Array;
 
   public function MultiPipeline( sources:Array ) {
-    this.sources = sources;
+    if (sources.length < 2) {
+      throw new ArgumentError("Multi-source pipelines must provide at least two sources")
+    }
+    for each (var source:Object in sources) {
+      if (!(source is IPipeline)) {
+        throw new ArgumentError("Source pipelines must be instances of IPipeline");
+      }
+    }
+
+    this.sources = sources.slice();
   }
 
   override protected function pipelineRunner( pipeline:Function ):Function {

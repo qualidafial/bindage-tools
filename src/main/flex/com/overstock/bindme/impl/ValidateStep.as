@@ -5,33 +5,44 @@ import org.hamcrest.Matcher;
 
 public class ValidateStep implements IPipelineStep {
 
-  private var attribute:Function;
+  private var func:Function;
   private var matcher:Matcher;
 
-  public function ValidateStep( condition:Array ) {
-    if (condition.length == 1) {
-      this.attribute = null;
-      this.matcher = condition[0];
+  public function ValidateStep( args:Array ) {
+    if (args.length == 1) {
+      if (!(args[0] is Matcher)) {
+        throw usageError();
+      }
+
+      this.matcher = args[0];
     }
-    else if (condition.length == 2) {
-      this.attribute = condition[0];
-      this.matcher = condition[1];
+    else if (args.length == 2) {
+      if (!(args[0] is Function && args[1] is Matcher)) {
+        throw usageError();
+      }
+
+      this.func = args[0];
+      this.matcher = args[1];
     }
     else {
-      throw new ArgumentError(
-          "Expecting arguments (attribute:Function, condition:Matcher) or (condition:Matcher)");
+      throw usageError();
     }
+  }
+
+  private function usageError():ArgumentError {
+    throw new ArgumentError(
+        "Expecting arguments (attribute:Function, condition:Matcher) or (condition:Matcher)");
   }
 
   public function wrapStep( nextStep:Function ):Function {
     return function( value:* ):void {
       var matchValue:* = value;
 
-      if (attribute != null) {
+      if (func != null) {
         var attributeArgs:Array = value is Array
             ? value
             : [value];
-        matchValue = attribute.apply(null, attributeArgs);
+        matchValue = func.apply(null, attributeArgs);
       }
 
       if (matcher.matches(matchValue)) {

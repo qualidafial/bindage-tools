@@ -1,6 +1,10 @@
 package com.overstock.bindme.impl {
+import com.overstock.bindme.BindGroup;
 import com.overstock.bindme.IPipeline;
 import com.overstock.bindme.IPipelineStep;
+import com.overstock.bindme.util.applyArgs;
+import com.overstock.bindme.util.preventRecursion;
+import com.overstock.bindme.util.setProperty;
 
 import flash.events.Event;
 
@@ -9,10 +13,6 @@ public class Pipeline implements IPipeline {
 
   public function Pipeline() {
     steps = []
-  }
-
-  protected static function toChain( property:String ):Array {
-    return property.split(".");
   }
 
   public function append( step:IPipelineStep ):IPipeline {
@@ -24,46 +24,109 @@ public class Pipeline implements IPipeline {
     return append(new ConvertStep(converter));
   }
 
+  public function format( format:String ):IPipeline {
+    return append(new FormatStep(format));
+  }
+
+  public function group( group:BindGroup ):IPipeline {
+    return append(new GroupStep(group));
+  }
+
+  public function log( level:int,
+                       message:String ):IPipeline {
+    return append(new LogStep(level, message));
+  }
+
   public function validate( ...condition ):IPipeline {
     return append(new ValidateStep(condition));
   }
 
   public function toProperty( target:Object,
-                              property:String ):IPipeline {
-    var setter:Function = propertySetter(target, property);
+                              ...properties:Array ):IPipeline {
+    if (null == target) {
+      throw new ArgumentError("target was null");
+    }
+
+    if (null == properties) {
+      throw new ArgumentError("properties was null");
+    }
+
+    if (properties.length == 0) {
+      throw new ArgumentError("properties was empty");
+    }
+
+    checkCustomGetterProperties(properties.slice(0, properties.length - 1));
+    checkCustomSetterProperty(properties[properties.length - 1]);
+
+    var normalizedProperties:* = normalizeProperties(properties);
+
+    var setter:Function = applyArgs(setProperty, target, normalizedProperties);
+
     return toFunction(setter);
   }
 
-  protected function propertySetter( target:Object,
-                                     property:String ):Function {
-    var propertyChain:Array = toChain(property);
-    var parentProperties:Array = propertyChain.slice(0, propertyChain.length - 1);
-    var leafProperty:String = propertyChain[propertyChain.length - 1];
-    return function( value:* ):void {
-      var host:Object = getProperty(target, parentProperties);
-      if (host != null) {
-        host[leafProperty] = value;
-      }
+  protected static function checkCustomGetterProperties( properties:Array ):void {
+    for each (var property:Object in properties) {
+      checkCustomGetterProperty(property);
     }
   }
 
-  protected function getProperty( source:Object,
-                                  propertyChain:Array ):Object {
-    var result:Object = source;
-    for each (var parentProperty:String in propertyChain) {
-      result = result[parentProperty];
-      if (result == null) {
-        break;
+  private static function checkCustomGetterProperty( property:Object ):void {
+    checkNullProperty(property);
+    if (!(property is String)) {
+      requireOwnProperty(property, "name", String);
+      requireOwnProperty(property, "getter", Function);
+    }
+  }
+
+  private static function checkCustomSetterProperty( property:Object ):void {
+    checkNullProperty(property);
+    if (!(property is String)) {
+      requireOwnProperty(property, "name", String);
+      requireOwnProperty(property, "setter", Function);
+    }
+  }
+
+  private static function checkNullProperty( property:Object ):void {
+    if (property == null) {
+      throw new ArgumentError("property was null");
+    }
+  }
+
+  protected static function requireOwnProperty( property:Object,
+                                                name:String,
+                                                type:Class ):void {
+    if (!property.hasOwnProperty(name)) {
+      throw new ArgumentError("Custom property missing attribute '" + name + "'.");
+    }
+
+    if (!(property[name] is type)) {
+      throw new ArgumentError("Custom property attribute '" +
+                              name + "' should be of type " + "'" + type + "'")
+    }
+  }
+
+  protected function normalizeProperties( properties:Array ):Array {
+    var result:Array = [];
+    for each (var property:Object in properties) {
+      if (property is String) {
+        for each (var prop:String in String(property).split(".")) {
+          result.push(prop);
+        }
+      }
+      else if (property.hasOwnProperty("name")) {
+        result.push(property);
       }
     }
     return result;
   }
 
   public function toFunction( func:Function ):IPipeline {
-    var runner:Function = runner(func);
+    var pipelineRunner:Function = runner(func);
+    pipelineRunner = preventRecursion(pipelineRunner);
 
     function handler( event:Event ):void {
-      runner();
+      pipelineRunner();
     }
 
     watch(handler);
@@ -89,23 +152,7 @@ public class Pipeline implements IPipeline {
       pipeline = step.wrapStep(pipeline);
     }
 
-    pipeline = preventRecursion(pipeline);
-
     return pipeline;
-  }
-
-  private static function preventRecursion( pipeline:Function ):Function {
-    var running:Boolean = false;
-    return function( value:* ):void {
-      if (!running) {
-        try {
-          running = true;
-          pipeline(value);
-        } finally {
-          running = false;
-        }
-      }
-    }
   }
 
   protected function pipelineRunner( pipeline:Function ):Function {

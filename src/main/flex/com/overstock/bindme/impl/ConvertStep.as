@@ -6,11 +6,15 @@ public class ConvertStep implements IPipelineStep {
   private var converter:Function;
 
   public function ConvertStep( converter:Function ) {
+    if (converter == null) {
+      throw new ArgumentError("converter function was null");
+    }
+
     this.converter = converter;
   }
 
   public function wrapStep( nextStep:Function ):Function {
-    return function( value:* ):* {
+    return function( value:* ):void {
       var values:Array = value is Array
           ? value
           : [value];

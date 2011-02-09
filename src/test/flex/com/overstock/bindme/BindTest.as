@@ -1,18 +1,34 @@
 package com.overstock.bindme {
+import com.overstock.bindme.converters.emptyStringToNull;
+import com.overstock.bindme.converters.toCondition;
+import com.overstock.bindme.properties.itemAt;
+import com.overstock.bindme.util.unwatchAll;
+
 import mx.binding.utils.ChangeWatcher;
+import mx.collections.ArrayCollection;
+import mx.logging.ILogger;
+import mx.logging.ILoggingTarget;
+import mx.logging.Log;
+import mx.logging.LogEvent;
+import mx.logging.LogEventLevel;
 
 import org.hamcrest.assertThat;
 import org.hamcrest.collection.array;
+import org.hamcrest.collection.hasItem;
+import org.hamcrest.core.not;
 import org.hamcrest.number.greaterThan;
 import org.hamcrest.number.lessThan;
 import org.hamcrest.object.equalTo;
+import org.hamcrest.object.hasProperties;
 import org.hamcrest.object.instanceOf;
 import org.hamcrest.text.re;
 
-public class BindTest {
+public class BindTest implements ILoggingTarget {
 
   private var source:Bean;
   private var target:Bean;
+
+  private var logEvents:Array;
 
   function BindTest() {
   }
@@ -56,8 +72,31 @@ public class BindTest {
   }
 
   [Test( expected="ArgumentError" )]
+  public function fromPropertyEmptyProperties():void {
+    Bind.fromProperty(source);
+  }
+
+  [Test( expected="ArgumentError" )]
   public function fromPropertyNullProperty():void {
     Bind.fromProperty(source, null);
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyToPropertyNullSource():void {
+    Bind.fromProperty(source, "foo")
+        .toProperty(null, "bar");
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyToPropertyEmptyProperties():void {
+    Bind.fromProperty(source, "foo")
+        .toProperty(source);
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyToPropertyNullProperty():void {
+    Bind.fromProperty(source, "foo")
+        .toProperty(target, null);
   }
 
   [Test]
@@ -82,6 +121,112 @@ public class BindTest {
 
     assertThat(target.baz,
                equalTo("123"));
+  }
+
+  [Test]
+  public function fromNestedNonStringPropertyToProperty():void {
+    source.foo = new ArrayCollection([ new Bean() ]);
+    source.foo[0].bar = 1;
+
+    Bind.fromProperty(source, "foo", itemAt(0), "bar")
+        .toProperty(target, "baz");
+
+    assertThat(target.baz,
+               equalTo(1));
+
+    source.foo[0].bar = 2;
+
+    assertThat(target.baz,
+               equalTo(2));
+
+    var newItem:Bean = new Bean();
+    newItem.bar = 3;
+
+    source.foo[0] = newItem;
+    assertThat(target.baz,
+               equalTo(3));
+
+    newItem = new Bean();
+    newItem.bar = 4;
+
+    var newFoo:ArrayCollection = new ArrayCollection();
+    newFoo.addItem(newItem);
+
+    source.foo = newFoo;
+    assertThat(target.baz,
+               equalTo(4));
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromNonStringPropertyMissingName():void {
+    Bind.fromProperty(source, { getter: source.receive });
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromNonStringPropertyMissingGetter():void {
+    Bind.fromProperty(source, { name: "foo" });
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyToCustomPropertyMissingName():void {
+    Bind.fromProperty(source, "foo")
+        .toProperty(target, { setter: target.receive });
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyToCustomPropertyMissingSetter():void {
+    Bind.fromProperty(source, "foo")
+        .toProperty(target, { name: "bar" });
+  }
+
+  [Test]
+  public function fromNonStringPropertyToProperty():void {
+    var list:ArrayCollection = new ArrayCollection([ 1 ]);
+
+    Bind.fromProperty(list, itemAt(0))
+        .toProperty(target, "foo");
+
+    assertThat(target.foo,
+               equalTo(1));
+
+    list[0] = 2;
+
+    assertThat(target.foo,
+               equalTo(2));
+  }
+
+  [Test]
+  public function fromPropertyToNonStringProperty():void {
+    source.foo = 1;
+    var list:ArrayCollection = new ArrayCollection([ null ]);
+
+    Bind.fromProperty(source, "foo")
+        .toProperty(list, itemAt(0));
+
+    assertThat(list[0],
+               equalTo(1));
+
+    source.foo = 2;
+
+    assertThat(list[0],
+               equalTo(2));
+  }
+
+  [Test]
+  public function fromPropertyToNestedNonStringProperty():void {
+    source.foo = 1;
+    target.bar = new ArrayCollection([ new Bean() ]);
+
+    Bind.fromProperty(source, "foo")
+        .toProperty(target, "bar", itemAt(0), "baz");
+
+    assertThat(target.bar[0].baz,
+               equalTo(1));
+
+    source.foo = 2;
+
+    assertThat(target.bar[0].baz,
+               equalTo(2));
   }
 
   [Test]
@@ -235,6 +380,12 @@ public class BindTest {
                equalTo("XYZ"));
   }
 
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyConvertNullConverter():void {
+    Bind.fromProperty(source, "foo")
+        .convert(null);
+  }
+
   [Test]
   public function fromPropertyConvertToFunction():void {
     source.foo = "abc";
@@ -254,6 +405,36 @@ public class BindTest {
                equalTo(2));
     assertThat(target.receivedValues,
                array("XYZ"));
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyValidateNoArguments():void {
+    Bind.fromProperty(source, "foo")
+        .validate();
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyValidateNullArgument():void {
+    Bind.fromProperty(source, "foo")
+        .validate(null);
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyValidateNotMatcherOrFunction():void {
+    Bind.fromProperty(source, "foo")
+        .validate("hello");
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyValidateFirstOfTwoArgsNotFunction():void {
+    Bind.fromProperty(source, "foo")
+        .validate("stuff", equalTo(null));
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyValidateLastOfTwoArgsNotMatcher():void {
+    Bind.fromProperty(source, "foo")
+        .validate(emptyStringToNull, "stuff");
   }
 
   [Test]
@@ -281,7 +462,7 @@ public class BindTest {
 
   [Test]
   public function fromPropertyValidateConvertToProperty():void {
-    source.foo = "foo";
+    source.foo = "5";
     target.bar = -1;
 
     var integerPattern:RegExp = /\d+/;
@@ -292,7 +473,11 @@ public class BindTest {
         .toProperty(target, "bar");
 
     assertThat(target.bar,
-               equalTo(-1)); // validation failed, no change
+               equalTo(5));
+
+    source.foo = "foo";
+    assertThat(target.bar,
+               equalTo(5)); // validation failed, no change
 
     source.foo = "10";
 
@@ -346,6 +531,82 @@ public class BindTest {
                equalTo(6)); // both validators passed, set new value
   }
 
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyLogInvalidLevel():void {
+    Bind.fromProperty(source, "foo")
+        .log(LogEventLevel.INFO + LogEventLevel.WARN, "message");
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyLogNullMessage():void {
+    Bind.fromProperty(source, "foo")
+        .log(LogEventLevel.INFO, null);
+  }
+
+  [Test]
+  public function fromPropertyLogToProperty():void {
+    logEvents = [];
+    Log.addTarget(this);
+
+    source.foo = "abc";
+
+    Bind.fromProperty(source, "foo")
+        .log(LogEventLevel.INFO, "value is {0}")
+        .toProperty(target, "bar");
+
+    assertThat(logEvents,
+               hasItem(hasProperties({
+                                       level:LogEventLevel.INFO,
+                                       message: "value is abc"
+                                     })));
+
+    source.foo = "xyz";
+    assertThat(logEvents,
+               hasItem(hasProperties({
+                                       level:LogEventLevel.INFO,
+                                       message: "value is xyz"
+                                     })));
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyFormatNullFormat():void {
+    Bind.fromProperty(source, "foo")
+        .format(null);
+  }
+
+  [Test]
+  public function fromPropertyFormatToProperty():void {
+    source.foo = "Hello";
+
+    Bind.fromProperty(source, "foo")
+        .format("{0}, world!")
+        .toProperty(target, "bar");
+
+    assertThat(target.bar,
+               equalTo("Hello, world!"));
+  }
+
+  [Test]
+  public function fromAllFormatToProperty():void {
+    source.foo = "Hello";
+    source.bar = "world";
+
+    Bind.fromAll(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(source, "bar")
+        )
+        .format("{0}, {1}!")
+        .toProperty(target, "baz");
+
+    assertThat(target.baz,
+               equalTo("Hello, world!"));
+
+    source.bar = "children";
+
+    assertThat(target.baz,
+               equalTo("Hello, children!"));
+  }
+
   [Test]
   public function twoWay():void {
     source.foo = 10;
@@ -367,6 +628,22 @@ public class BindTest {
 
     assertThat(source.foo,
                equalTo(12));
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function twoWaySourceNotInstanceOfIPropertyPipeline():void {
+    Bind.twoWay(
+        Bind.fromAll(Bind.fromProperty(source, "foo"),
+                     Bind.fromProperty(source, "bar")),
+        Bind.fromProperty(target, "baz"));
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function twoWayTargetNotInstanceOfIPropertyPipeline():void {
+    Bind.twoWay(
+        Bind.fromProperty(target, "baz"),
+        Bind.fromAll(Bind.fromProperty(source, "foo"),
+                     Bind.fromProperty(source, "bar")));
   }
 
   [Test]
@@ -425,7 +702,7 @@ public class BindTest {
     assertThat(target.bar,
                equalTo(1));
 
-    ChangeWatcher(collected[0]).unwatch();
+    unwatchAll(collected);
 
     source.foo = 2;
     assertThat(target.bar,
@@ -451,7 +728,7 @@ public class BindTest {
     assertThat(target.receiveCount,
                equalTo(2));
 
-    ChangeWatcher(collected[0]).unwatch();
+    unwatchAll(collected);
 
     source.foo = 2;
     assertThat(target.receiveCount,
@@ -480,8 +757,7 @@ public class BindTest {
     assertThat(source.foo,
                equalTo(2));
 
-    ChangeWatcher(collected[0]).unwatch();
-    ChangeWatcher(collected[1]).unwatch();
+    unwatchAll(collected);
 
     source.foo = 3;
     assertThat(target.bar,
@@ -512,6 +788,70 @@ public class BindTest {
 
     assertThat(actual,
                array(expected[0]));
+  }
+
+  [Test]
+  public function collectFromAll():void {
+    function createBindings():void {
+      Bind.fromAll(
+          Bind.fromProperty(source, "foo"),
+          Bind.fromProperty(source, "bar")
+          )
+          .convert(sum)
+          .toProperty(target, "baz");
+    }
+
+    source.foo = 1;
+    source.bar = 2;
+
+    var collected:Array = Bind.collect(createBindings);
+
+    assertThat(target.baz,
+               equalTo(3));
+
+    source.foo = 5;
+    assertThat(target.baz,
+               equalTo(7));
+
+    source.bar = 10;
+    assertThat(target.baz,
+               equalTo(15));
+
+    unwatchAll(collected);
+
+    source.foo = 100;
+    assertThat(target.baz,
+               equalTo(15)); // unchanged, change watcher is disposed
+
+    source.bar = 500;
+    assertThat(target.baz,
+               equalTo(15)); // unchanged, change watcher is disposed
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromAllNoSources():void {
+    Bind.fromAll();
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromAllSingleSource():void {
+    Bind.fromAll(Bind.fromProperty(source, "foo"));
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromAllSourcesNotIPipelines():void {
+    Bind.fromAll(
+        "foo",
+        "bar"
+        );
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromAllNullSources():void {
+    Bind.fromAll(
+        Bind.fromProperty(source, "foo"),
+        null
+        );
   }
 
   [Test]
@@ -620,7 +960,7 @@ public class BindTest {
   }
 
   [Test]
-  public function fromAllValidateWithPreconversion():void {
+  public function fromAllValidateAttribute():void {
     source.foo = 1;
     source.bar = 2;
 
@@ -647,6 +987,150 @@ public class BindTest {
                array(-1, 3));
   }
 
+  [Test]
+  public function groupBindings():void {
+    source.foo = 1;
+
+    // source.foo -> source.bar -> source.baz -> source.foo etc
+    var group:BindGroup = new BindGroup();
+    Bind.fromProperty(source, "foo").group(group).toProperty(source, "bar");
+    Bind.fromProperty(source, "bar").group(group).toProperty(source, "baz");
+    Bind.fromProperty(source, "baz").group(group).toProperty(source, "foo");
+
+    assertThat(source.bar,
+               equalTo(1));
+    assertThat(source.baz,
+               equalTo(1));
+
+    source.foo = 2;
+
+    assertThat(source.bar,
+               equalTo(2));
+    assertThat(source.baz,
+               equalTo(1)); // unchanged
+
+    source.bar = 3;
+
+    assertThat(source.baz,
+               equalTo(3));
+    assertThat(source.foo,
+               equalTo(2)); // unchanged
+
+    source.baz = 4;
+
+    assertThat(source.foo,
+               equalTo(4));
+    assertThat(source.bar,
+               equalTo(3)); // unchanged
+  }
+
+  [Test]
+  public function groupBindingsTwoWay():void {
+    source.foo = 1;
+
+    var group:BindGroup = new BindGroup();
+
+    Bind.twoWay(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(target, "bar"),
+        group);
+
+    assertThat(target.bar,
+               equalTo(1));
+
+    Bind.twoWay(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(target, "baz"),
+        group);
+
+    assertThat(target.baz,
+               equalTo(1));
+
+    source.foo = 2;
+
+    assertThat(target.bar,
+               equalTo(2)); // change events listeners are called in serial
+    assertThat(target.baz,
+               equalTo(2)); // so there is never contention for the group
+
+    target.bar = 3;
+
+    assertThat(source.foo,
+               equalTo(3));
+    // a binding in the group is running by the time source.foo->target.baz binding fires,
+    // so it aborts
+    assertThat(target.baz,
+               equalTo(2));
+
+    target.baz = 4;
+
+    assertThat(source.foo,
+               equalTo(4));
+    assertThat(target.bar,
+               equalTo(3)); // ditto previous block
+  }
+
+  [Test]
+  public function groupBindingsSingleSourceToMultipleTargets():void {
+    // This idiom often comes up in UIs, where a single data point in the model is represented by
+    // several fields in the user interface.  By grouping all bindings, we ensure that a change in
+    // one of these three places does not propagate inappropriately.
+
+    // This test derived from a real-world issue where bindings overwrote the related fields
+    // unexpectedly.
+
+    source.foo = "stuff";
+
+    var group:BindGroup = new BindGroup();
+
+    Bind.fromProperty(source, "foo")// The data model
+        .group(group)
+        .convert(toCondition(not(equalTo(null))))
+        .toProperty(target, "bar"); // e.g. a checkbox: "Is there a foo?"
+
+    Bind.fromProperty(source, "foo")
+        .group(group)
+        .toProperty(target, "baz"); // e.g. a text input: "Enter foo name:"
+
+    Bind.fromAll(
+        Bind.fromProperty(target, "bar"),
+        Bind.fromProperty(target, "baz")
+        )
+        .group(group)
+        .convert(
+                function( selection:Boolean,
+                          text:String ):String {
+                  return selection
+                      ? text
+                      : null;
+                })
+        .toProperty(source, "foo");
+
+    assertThat(target.bar,
+               equalTo(true));
+    assertThat(target.baz,
+               equalTo("stuff"));
+
+    target.baz = "junk";
+
+    assertThat(source.foo,
+               equalTo("junk"));
+
+    target.bar = false;
+
+    assertThat(source.foo,
+               equalTo(null));
+    assertThat(target.baz,
+               equalTo("junk")); // make sure change to source.foo didn't bounce back
+
+    target.baz = "things";
+
+    assertThat(target.bar,
+               equalTo(false)); // make sure change to source.foo didn't bounce back
+    assertThat(source.foo,
+               equalTo(null)); // no change because target.bar is still false
+  }
+
   private static function numberToString( value:* ):String {
     return value == null
         ? null
@@ -667,6 +1151,38 @@ public class BindTest {
       result += value;
     }
     return result;
+  }
+
+  // ILoggingTarget interface implementation
+
+  public function get filters():Array {
+    return [ 'com.overstock.bindme.*' ];
+  }
+
+  public function set filters( ignored:Array ):void {
+  }
+
+  public function get level():int {
+    return LogEventLevel.DEBUG;
+  }
+
+  public function set level( ignored:int ):void {
+  }
+
+  public function addLogger( logger:ILogger ):void {
+    if (logger) {
+      logger.addEventListener(LogEvent.LOG, handleLogEvent);
+    }
+  }
+
+  public function removeLogger( logger:ILogger ):void {
+    if (logger) {
+      logger.removeEventListener(LogEvent.LOG, handleLogEvent);
+    }
+  }
+
+  private function handleLogEvent( event:LogEvent ):void {
+    logEvents.push(event);
   }
 }
 

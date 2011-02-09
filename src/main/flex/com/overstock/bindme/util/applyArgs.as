@@ -1,4 +1,4 @@
-package com.overstock.flex.bindme.util {
+package com.overstock.bindme.util {
 
 /**
  * Returns a function which wraps the specified function, with the specified bound argument

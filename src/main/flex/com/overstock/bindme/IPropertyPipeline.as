@@ -6,11 +6,15 @@ package com.overstock.bindme {
 public interface IPropertyPipeline extends IPipeline {
 
   /**
-   * Returns a <code>function(value:*):void</code> which, when invoked,
-   * sets the pipeline source property to the passed-in value.
-   * @return a function which sets the pipelins source's property.
+   * Returns the source object of the binding pipeline.
    */
-  function sourceSetter():Function;
+  function get source():Object;
+
+  /**
+   * Returns the sequence of nested properties that this binding pipeline watches on the source
+   * object.
+   */
+  function get properties():Array;
 
 }
 

@@ -1,11 +1,11 @@
-package com.overstock.flex.bindme.converters {
+package com.overstock.bindme.converters {
 
 /**
  * Returns the maximum value in the arguments
  *
  * @param values the values from which the maximum will be taken
  */
-public function max( ...values ):* {
+public function toMaximum( ...values ):* {
   var result:* = null;
   for each (var value:*in values) {
     if (null == result) {
