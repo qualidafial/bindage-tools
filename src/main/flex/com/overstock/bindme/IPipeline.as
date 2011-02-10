@@ -143,8 +143,8 @@ public interface IPipeline {
    * </li>
    * </ul>
    * @return this IPipeline instance for method chaining.
-   * @throws ArgumentError if either object or property is null, or if property is not a valid
-   * Property or String instance.
+   * @throws ArgumentError if object is null, or if properties contains any null or invalid
+   * values.
    */
   function toProperty( target:Object,
                        ...properties ):IPipeline;
