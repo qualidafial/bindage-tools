@@ -9,10 +9,12 @@ import com.overstock.bindme.util.setProperty;
 import flash.events.Event;
 
 public class Pipeline implements IPipeline {
+  private var groups:Array;
   private var steps:Array;
 
   public function Pipeline() {
-    steps = []
+    groups = [];
+    steps = [];
   }
 
   public function append( step:IPipelineStep ):IPipeline {
@@ -24,12 +26,17 @@ public class Pipeline implements IPipeline {
     return append(new ConvertStep(converter));
   }
 
+  public function delay( delayMillis:int ):IPipeline {
+    return append(new DelayStep(delayMillis));
+  }
+
   public function format( format:String ):IPipeline {
     return append(new FormatStep(format));
   }
 
   public function group( group:BindGroup ):IPipeline {
-    return append(new GroupStep(group));
+    groups.push(group);
+    return this;
   }
 
   public function log( level:int,
@@ -149,10 +156,27 @@ public class Pipeline implements IPipeline {
 
     for (var i:int = steps.length - 1; i >= 0; i--) {
       var step:IPipelineStep = steps[i];
+
+      if (step is DelayStep) {
+        // We exited the groups when the delay started.  Wrap the pipeline in each group to
+        // ensure we don't get round-robin bindings.
+        pipeline = wrapPipelineInGroups(pipeline);
+      }
+
       pipeline = step.wrapStep(pipeline);
     }
 
+    pipeline = wrapPipelineInGroups(pipeline);
+
     return pipeline;
+  }
+
+  private function wrapPipelineInGroups( pipeline:Function ):Function {
+    var result:Function = pipeline;
+    for each (var group:BindGroup in groups) {
+      result = applyArgs(group.callExclusively, result);
+    }
+    return result;
   }
 
   protected function pipelineRunner( pipeline:Function ):Function {

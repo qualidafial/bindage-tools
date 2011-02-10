@@ -31,6 +31,16 @@ public interface IPipeline {
   function convert( converter:Function ):IPipeline;
 
   /**
+   * Appends a delay step to the end of the binding pipeline.  Value(s) in the pipeline will be
+   * held for <code>delay</code> milliseconds before sending them to the next step in the
+   * pipeline.  If any new value(s) are received before the delay has elapsed, the old value(s)
+   * will be discarded, the delay starts over with the new value(s).
+   *
+   * @param delayMillis the delay in milliseconds.
+   */
+  function delay( delayMillis:int ):IPipeline;
+
+  /**
    * Appends a formatting step to the end of the binding pipeline.  During this step, the current
    * value(s) are interpolated into the specified format string, and the resulting string is sent
    * to the next step in the pipeline.
@@ -66,8 +76,9 @@ public interface IPipeline {
   function format( format:String ):IPipeline;
 
   /**
-   * Adds a step ensuring that this binding pipeline does not execute concurrently with any other
-   *  binding in the same group.  A single binding can belong to multiple groups.
+   * Prepends a step ensuring that this binding pipeline does not execute concurrently with any other
+   * binding in the same group.  Binding groups are always enforced before any other steps in the
+   * pipeline can occur.  Pipelines can belong to an arbitrary number of groups.
    *
    * @param group the group the binding should be added to.
    * @return this IPipeline instance for method chaining.

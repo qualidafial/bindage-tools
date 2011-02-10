@@ -1,8 +1,8 @@
 package com.overstock.bindme {
 import com.overstock.bindme.impl.MultiPipeline;
 import com.overstock.bindme.impl.PropertyPipeline;
-import com.overstock.bindme.util.setProperty;
 import com.overstock.bindme.util.applyArgs;
+import com.overstock.bindme.util.setProperty;
 
 import mx.binding.utils.ChangeWatcher;
 
@@ -140,6 +140,13 @@ public class Bind {
       throw new ArgumentError("Target pipeline must originate from a single property");
     }
 
+    if (group == null) {
+      group = new BindGroup();
+    }
+
+    source.group(group);
+    target.group(group);
+
     var sourcePipeline:IPropertyPipeline = IPropertyPipeline(source);
     var targetPipeline:IPropertyPipeline = IPropertyPipeline(target);
 
@@ -150,14 +157,8 @@ public class Bind {
                                           targetPipeline.source,
                                           targetPipeline.properties);
 
-    if (group == null) {
-      group = new BindGroup();
-    }
-
-    var sourceToTargetRunner:Function = applyArgs(group.callExclusively,
-                                                  source.runner(targetSetter));
-    var targetToSourceRunner:Function = applyArgs(group.callExclusively,
-                                                  target.runner(sourceSetter));
+    var sourceToTargetRunner:Function = source.runner(targetSetter);
+    var targetToSourceRunner:Function = target.runner(sourceSetter);
 
     source.watch(sourceToTargetRunner);
     target.watch(targetToSourceRunner);
