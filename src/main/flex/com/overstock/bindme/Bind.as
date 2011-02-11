@@ -4,54 +4,186 @@ import com.overstock.bindme.impl.PropertyPipeline;
 import com.overstock.bindme.util.applyArgs;
 import com.overstock.bindme.util.setProperty;
 
-import mx.binding.utils.ChangeWatcher;
-
 /**
- * A factory for creating binding pipelines between arbitrary <code>[Bindable]</code> properties.
+ * A factory for creating binding pipelines between arbitrary <code>[Bindable]</code>
+ * properties.
+ *
+ * <h3>Examples:</h3>
+ *
+ * <h4>Simple one-way binding:</h4>
+ * <pre>
+ * Bind.fromProperty(model, "submitEnabled")
+ *     .toProperty(submitButton, "enabled");
+ * </pre>
+ *
+ * <h4>Two-way bindings:</h4>
+ * <pre>
+ *     Bind.twoWay(
+ *         Bind.fromProperty(person, "name"),
+ *         Bind.fromProperty(nameInput, "text"));
+ * </pre>
+ *
+ * <h4>Data validation:</h4>
+ * <pre>
+ *     Bind.fromProperty(ageStepper, "value")
+ *         .validate(greaterThanOrEqualTo(0)) // (Hamcrest matcher)
+ *         .toProperty(person, "age");
+ * </pre>
+ *
+ * <h4>Data conversion</h4>
+ * <pre>
+ *     Bind.fromProperty(ageInput, "text")
+ *         .convert(toNumber())
+ *         .toProperty(person, "age");
+ * </pre>
+ *
+ * <h4>Custom conversion</h4>
+ * <pre>
+ *     function toTitleCase(value:String):String {
+ *       return value.replace(/\b./g, // match first letter of each word
+ *                            function(match:String, ... rest):String {
+ *                              return match.toUpperCase(); }
+ *                            });
+ *     }
+ *     <br/>
+ *     Bind.fromProperty(document, "title")
+ *         .convert(toTitleCase)
+ *         .toProperty(titleLabel, "text");
+ * </pre>
+ *
+ * <h4>Validate for conversion, convert, then validate converted value</h4>
+ * <pre>
+ *     Bind.fromProperty(ageInput, "text")
+ *         .validate(re(/\d+/)) // ("re" is the Hamcrest matcher for RegExp)
+ *         .convert(toNumber())
+ *         .validate(greaterThan(0))
+ *         .toProperty(person, "age");
+ * </pre>
+ *
+ * <h4>Bind from a property to a handler function:</h4>
+ * <pre>
+ *     function handler(person:Person):void {
+ *       Alert.show("New person! "+person.toString());
+ *     }
+ * <br/>
+ *     Bind.fromProperty(model, "person")
+ *         .toFunction(handler);
+ * </pre>
+ *
+ * <h4>Interpolate values into Strings:</h4>
+ * <pre>
+ *     Bind.fromProperty(user, "name")
+ *         .format("Welcome, {0}!")
+ *         .toProperty(welcomeLabel, "text");
+ * </pre>
+ *
+ * <h4>Log when data travels through a binding pipeline:</h4>
+ * <pre>
+ *     Bind.fromProperty(person, "name")
+ *         .log(LogEventLevel.DEBUG, "person.name changed to {0}")
+ *         .convert(valueToString())
+ *         .log(LogEventLevel.DEBUG, "name converted to String {0}")
+ *         .toProperty(nameInput, "text");
+ * </pre>
+ *
+ * <h4>Bind from multiple sources</h4>
+ * <pre>
+ *     Bind.fromAll(
+ *         Bind.fromProperty(billingSameAsShippingCheckbox, "selection"),
+ *         Bind.fromProperty(shippingAddressInput, "text"),
+ *         Bind.fromProperty(billingAddressInput, "text")
+ *         )
+ *         .convert(function(billSameAsShip:Boolean, shipValue:String, billValue:String):String {
+ *           // Converter function is called with argument in same order as the source bindings above
+ *           return billSameAsShip ? shipValue : billValue;
+ *         })
+ *         .toProperty(order, "billingAddress");
+ * </pre>
+ *
+ * <h4>Bind some condition to the enablement/visibility of a control</h4>
+ * The login button should be enabled only if both the username and password fields are non-empty.
+ * <pre>
+ *     Bind.fromAll(
+ *         Bind.fromProperty(userNameInput, "text"),
+ *         Bind.fromProperty(passwordInput, "text")
+ *         )
+ *         .convert(toCondition(everyItem(not(emptyString()))))
+ *         .toProperty(loginButton, "enabled");
+ * </pre>
+ *
+ * <h4>Group related bindings so they do not step on eachother:</h4>
+ * Suppose we have a UI for entering a coupon code.  We have a checkbox,
+ * "Do you have a coupon?" and a text input to enter the code.  These two UI elements represent a
+ * single field in the model.
+ *
+ * <p>
+ * When there is a coupon code in the model, the checkbox should be selected,
+ * and the coupon input should display the coupon code.
+ * </p>
+ *
+ * <p>
+ * Grouping helps solve the problem where complementary bindings make a roundtrip and overwrite
+ * eachother.  If groups were omitted in this example, and if the coupon input field was blank,
+ * then selecting the checkbox would trigger binding 3, which would set null to the coupon code in
+ * the model (since no coupon code is entered in the text box).  Setting the model would in turn
+ * trigger binding 1 with the blank value, setting the checkbox selection back to false.
+ * </p>
+ *
+ * <p>
+ * When two or more bindings are grouped together, then only one binding in the group may execute
+ * at a time.  If one binding in a group is running when another is triggered,
+ * the second binding simply aborts until the next property change.
+ * </p>
+ *
+ * <p>
+ * Note that bindings created using <code>Bind.twoWay</code> are already grouped transparently
+ * for you.
+ * </p>
+ *
+ * <pre>
+ *     var couponCodeGroup:BindGroup = new BindGroup();
+ *     Bind.fromProperty(order, "couponCode") // binding 1
+ *         .group(couponCodeGroup)
+ *         .convert(toCondition(not(equalTo(null))))
+ *         .toProperty(hasCouponCheckbox, "selection");
+ * <br/>
+ *     Bind.fromProperty(order, "couponCode") // binding 2
+ *         .group(couponCodeGroup)
+ *         .toProperty(couponCodeInput, "text");
+ * <br/>
+ *     Bind.fromAll( // binding 3
+ *         Bind.fromProperty(hasCouponCheckbox, "selection"),
+ *         Bind.fromProperty(couponCodeInput, "text")
+ *             .convert(emptyStringToNull())
+ *         )
+ *         .group(couponCodeGroup)
+ *         .convert(function(hasCoupon:Boolean, couponCode:String):String {
+ *           return hasCoupon ? couponCode : null;
+ *         })
+ *         .toProperty(order, "couponCode");
+ * </pre>
+ *
+ * <h4>Delay execution of a binding until the user stops typing</h4>
+ *
+ * <p>
+ * Use a delayed binding when the response to the change is a long-running or expensive operation
+ * The pipeline will halt at the delay step until the specified delay has elapsed with no further
+ * changes.
+ * </p>
+ *
+ * <pre>
+ *     function searchItems(searchText:String):void {
+ *       // expensive filtering operation, or asynchronous webservice call
+ *     }
+ * <br/>
+ *     Bind.fromProperty(searchInput, "text")
+ *         .delay(400) // milliseconds
+ *         .toFunction(searchItems);
+ * </pre>
  */
 public class Bind {
-  private static var collected:Array;
-
-  /**
-   * Executes the specified function, then returns an array of all ChangeWatchers created by the
-   * Bind class in the course of the function's execution.
-   *
-   * <p>
-   * Clients which use this method can destroy any of the created bindings by calling
-   * <code>reset()</code> on the corresponding ChangeWatcher.
-   * </p>
-   *
-   * @param func the function to execute and collect bindings from
-   * @param rest the arguments to pass to the specified function
-   */
-  public static function collect( func:Function,
-                                  ...rest ):Array {
-    var oldCollected:Array = Bind.collected;
-
-    Bind.collected = [];
-
-    var result:Array;
-    try {
-      func.apply(null, rest);
-      result = Bind.collected;
-    } finally {
-      Bind.collected = oldCollected == null
-          ? null
-          : oldCollected.concat(Bind.collected);
-    }
-
-    return result;
-  }
-
-  /**
-   * Called internally whenever a binding pipeline creates a ChangeWatcher.
-   * @param changeWatcher the change watcher that was created.
-   * @see com.overstock.bindme.IPipeline.watch
-   */
-  public static function changeWatcherCreated( changeWatcher:ChangeWatcher ):void {
-    if (Bind.collected != null) {
-      Bind.collected.push(changeWatcher);
-    }
+  [Exclude]
+  public function Bind() {
   }
 
   /**
@@ -88,19 +220,19 @@ public class Bind {
    * Example:
    * </p>
    * <pre>
-   *   Bind.fromAll(
-   *       Bind.fromProperty(normalPriceInput, "text")
-   *           .validate(isNumber())
-   *           .convert(toNumber)
-   *           .validate(greaterThan(0)),
-   *       Bind.fromProperty(discountPriceInput, "text")
-   *           .validate(isNumber())
-   *           .convert(toNumber)
-   *       )
-   *       .convert(function(normalPrice:Number, discountPrice:Number):String {
-   *             return (100 * (normalPrice - discountPrice) / normalPrice) + '%';
-   *           })
-   *       .to(discountPercentText, 'text');
+   * Bind.fromAll(
+   *     Bind.fromProperty(normalPriceInput, "text")
+   *         .validate(isNumber())
+   *         .convert(toNumber)
+   *         .validate(greaterThan(0)),
+   *     Bind.fromProperty(discountPriceInput, "text")
+   *         .validate(isNumber())
+   *         .convert(toNumber)
+   *     )
+   *     .convert(function(normalPrice:Number, discountPrice:Number):String {
+   *       return (100 * (normalPrice - discountPrice) / normalPrice) + '%';
+   *     })
+   *     .to(discountPercentText, 'text');
    * </pre>
    *
    * <p>

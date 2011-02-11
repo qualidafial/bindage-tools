@@ -50,7 +50,7 @@ public class PropertyPipeline extends Pipeline implements IPropertyPipeline {
     var watcher:ChangeWatcher = ChangeWatcher.watch(_source,
                                                     _properties,
                                                     runner);
-    Bind.changeWatcherCreated(watcher);
+    BindTracker.changeWatcherCreated(watcher);
   }
 
 }

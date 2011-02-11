@@ -1,0 +1,56 @@
+package com.overstock.bindme {
+import mx.binding.utils.ChangeWatcher;
+
+public class BindTracker {
+
+  [Exclude]
+  public function BindTracker() {
+  }
+
+  private static var collected:Array;
+
+  /**
+   * Executes the specified function, then returns an array of all ChangeWatchers created through
+   * the Bind class in the course of the function's execution.
+   *
+   * <p>
+   * Clients which use this method can destroy any of the created bindings by calling
+   * <code>unwatchAll(watchers)</code> on the returned array.
+   * </p>
+   *
+   * @param func the function to execute and collect bindings from
+   * @param rest the arguments to pass to the specified function
+   */
+  public static function collect( func:Function,
+                                  ...rest ):Array {
+    var oldCollected:Array = collected;
+
+    collected = [];
+
+    var result:Array;
+    try {
+      func.apply(null, rest);
+      result = collected;
+    } finally {
+      collected = oldCollected == null
+          ? null
+          : oldCollected.concat(collected);
+    }
+
+    return result;
+  }
+
+  /**
+   * Called internally whenever a binding pipeline creates a ChangeWatcher.
+   * @param changeWatcher the change watcher that was created.
+   * @see com.overstock.bindme.IPipeline.watch
+   */
+  public static function changeWatcherCreated( changeWatcher:ChangeWatcher ):void {
+    if (collected != null) {
+      collected.push(changeWatcher);
+    }
+  }
+
+}
+
+}

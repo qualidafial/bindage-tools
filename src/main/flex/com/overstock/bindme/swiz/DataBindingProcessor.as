@@ -1,9 +1,9 @@
 package com.overstock.bindme.swiz {
-import com.overstock.bindme.Bind;
+import com.overstock.bindme.BindTracker;
+import com.overstock.bindme.util.unwatchAll;
 
 import flash.utils.Dictionary;
 
-import mx.binding.utils.ChangeWatcher;
 import mx.events.FlexEvent;
 import mx.logging.ILogger;
 import mx.logging.Log;
@@ -86,7 +86,7 @@ public class DataBindingProcessor extends BaseMetadataProcessor {
                                   method:Function ):void {
     var uid:String = UIDUtil.getUID(source);
 
-    var changeWatchers:Array = Bind.collect(method);
+    var changeWatchers:Array = BindTracker.collect(method);
 
     logger.debug("created {0} bindings",
                  changeWatchers.length,
@@ -109,9 +109,8 @@ public class DataBindingProcessor extends BaseMetadataProcessor {
                    source,
                    uid);
 
-      for each (var cw:ChangeWatcher in changeWatchers) {
-        cw.unwatch();
-      }
+      unwatchAll(changeWatchers);
+
       delete changeWatchersBySource[uid];
     }
   }

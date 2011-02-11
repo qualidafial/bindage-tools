@@ -756,7 +756,7 @@ public class BindTest implements ILoggingTarget {
           .toProperty(target, "bar");
     }
 
-    var collected:Array = Bind.collect(createBindings);
+    var collected:Array = BindTracker.collect(createBindings);
 
     assertThat(collected,
                array(instanceOf(ChangeWatcher)));
@@ -779,7 +779,7 @@ public class BindTest implements ILoggingTarget {
           .toFunction(target.receive);
     }
 
-    var collected:Array = Bind.collect(createBindings);
+    var collected:Array = BindTracker.collect(createBindings);
 
     assertThat(collected,
                array(instanceOf(ChangeWatcher)));
@@ -806,7 +806,7 @@ public class BindTest implements ILoggingTarget {
           Bind.fromProperty(target, "bar"));
     }
 
-    var collected:Array = Bind.collect(createBindings);
+    var collected:Array = BindTracker.collect(createBindings);
 
     assertThat(collected,
                array(instanceOf(ChangeWatcher),
@@ -841,10 +841,10 @@ public class BindTest implements ILoggingTarget {
     }
 
     function createBindingsOuter():void {
-      expected = Bind.collect(createBindingsInner);
+      expected = BindTracker.collect(createBindingsInner);
     }
 
-    var actual:Array = Bind.collect(createBindingsOuter);
+    var actual:Array = BindTracker.collect(createBindingsOuter);
 
     assertThat(expected,
                array(instanceOf(ChangeWatcher)));
@@ -867,7 +867,7 @@ public class BindTest implements ILoggingTarget {
     source.foo = 1;
     source.bar = 2;
 
-    var collected:Array = Bind.collect(createBindings);
+    var collected:Array = BindTracker.collect(createBindings);
 
     assertThat(target.baz,
                equalTo(3));
