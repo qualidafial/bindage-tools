@@ -60,6 +60,17 @@ import com.overstock.bindme.util.setProperty;
  *         .toProperty(person, "age");
  * </pre>
  *
+ * <h4>Two-way binding with validation and conversion</h4>
+ * <pre>
+ * Bind.twoWay(
+ *     Bind.fromProperty(model, "age")
+ *         .convert(valueToString()),
+ *     Bind.fromProperty(ageInput, "text")
+ *         .validate(isNumber())
+ *         .convert(toNumber())
+ *         .validate(greaterThan(0)));
+ * </pre>
+ *
  * <h4>Bind from a property to a handler function:</h4>
  * <pre>
  *     function selectAllOrNone(all:Boolean):void {
