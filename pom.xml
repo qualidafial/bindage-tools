@@ -15,56 +15,10 @@
   <artifactId>BindMe</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>swc</packaging>
-  <name>BindMe Data Binding</name>
+  <name>BindMe Data Binding Framework</name>
   <description>
-    BindMe is an advanced data binding toolkit for Flex ActionScript 3.
+    BindMe is an advanced data binding framework for Flex ActionScript 3.
   </description>
-
-  <build>
-    <sourceDirectory>src/main/flex</sourceDirectory>
-    <testSourceDirectory>src/test/flex</testSourceDirectory>
-
-    <plugins>
-      <plugin>
-        <groupId>org.sonatype.flexmojos</groupId>
-        <artifactId>flexmojos-maven-plugin</artifactId>
-        <version>${flexmojos-maven-plugin.version}</version>
-        <extensions>true</extensions>
-
-        <dependencies>
-          <dependency>
-            <groupId>com.adobe.flex.framework</groupId>
-            <artifactId>flex-framework</artifactId>
-            <version>${flexcompiler.version}</version>
-            <type>pom</type>
-          </dependency>
-
-          <dependency>
-            <groupId>com.adobe.flex</groupId>
-            <artifactId>compiler</artifactId>
-            <version>${flexcompiler.version}</version>
-            <type>pom</type>
-          </dependency>
-        </dependencies>
-
-        <configuration>
-          <verboseStacktraces>true</verboseStacktraces>
-          <debug>true</debug>
-          <ignoreVersionIssues>false</ignoreVersionIssues>
-          <allowSourcePathOverlap>false</allowSourcePathOverlap>
-          <compiledLocales>
-            <locale>en_US</locale>
-          </compiledLocales>
-          <configurationReport>true</configurationReport>
-          <strict>true</strict>
-
-          <keepAs3Metadatas>
-            <keepAs3Metadata>DataBinding</keepAs3Metadata>
-          </keepAs3Metadatas>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
   <dependencies>
     <dependency>
@@ -82,10 +36,18 @@
     </dependency>
 
     <dependency>
+      <groupId>org.swizframework</groupId>
+      <artifactId>swiz</artifactId>
+      <version>1.0.0</version>
+      <type>swc</type>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
       <groupId>com.adobe.flexunit</groupId>
       <artifactId>flexunit</artifactId>
-      <!--<version>4.0</version>-->
       <version>4.0-beta-2</version>
+      <!--<version>4.0</version>-->
       <type>swc</type>
       <scope>test</scope>
     </dependency>
@@ -106,18 +68,141 @@
       <type>swc</type>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.swizframework</groupId>
-      <artifactId>swiz</artifactId>
-      <version>1.0.0</version>
-      <type>swc</type>
-      <optional>true</optional>
-    </dependency>
-
   </dependencies>
 
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.sonatype.flexmojos</groupId>
+          <artifactId>flexmojos-maven-plugin</artifactId>
+          <version>${flexmojos-maven-plugin.version}</version>
+
+          <dependencies>
+            <dependency>
+              <groupId>com.adobe.flex.framework</groupId>
+              <artifactId>flex-framework</artifactId>
+              <version>${flexcompiler.version}</version>
+              <type>pom</type>
+            </dependency>
+
+            <dependency>
+              <groupId>com.adobe.flex</groupId>
+              <artifactId>compiler</artifactId>
+              <version>${flexcompiler.version}</version>
+              <type>pom</type>
+            </dependency>
+          </dependencies>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <sourceDirectory>src/main/flex</sourceDirectory>
+    <testSourceDirectory>src/test/flex</testSourceDirectory>
+
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.flexmojos</groupId>
+        <artifactId>flexmojos-maven-plugin</artifactId>
+        <version>${flexmojos-maven-plugin.version}</version>
+
+        <extensions>true</extensions>
+
+        <configuration>
+          <verboseStacktraces>true</verboseStacktraces>
+          <debug>true</debug>
+          <ignoreVersionIssues>false</ignoreVersionIssues>
+          <allowSourcePathOverlap>false</allowSourcePathOverlap>
+          <compiledLocales>
+            <locale>en_US</locale>
+          </compiledLocales>
+          <configurationReport>true</configurationReport>
+          <strict>true</strict>
+
+          <keepAs3Metadatas>
+            <keepAs3Metadata>DataBinding</keepAs3Metadata>
+          </keepAs3Metadatas>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.flexmojos</groupId>
+        <artifactId>flexmojos-maven-plugin</artifactId>
+        <version>${flexmojos-maven-plugin.version}</version>
+
+        <reportSets>
+          <reportSet>
+            <id>flex-reports</id>
+            <reports>
+              <report>asdoc-report</report>
+            </reports>
+
+            <configuration>
+              <name>
+                ${project.name} ${project.version} API Documentation
+              </name>
+
+              <mainTitle>
+                ${project.name} ${project.version} API Documentation
+              </mainTitle>
+
+              <windowTitle>
+                ${project.name} ${project.version} API Documentation
+              </windowTitle>
+
+              <description>
+                API documentation for the ${project.name} ${project.version} data binding library
+              </description>
+
+              <packageDescriptions>
+                <com.overstock.bindme>
+                  Core classes for data binding
+                </com.overstock.bindme>
+
+                <com.overstock.bindme.converters>
+                  Commonly used conversion functions
+                </com.overstock.bindme.converters>
+
+                <com.overstock.bindme.impl>
+                  Internal. Classes in this package are not considered public API, and are subject
+                  to change without notice.
+                </com.overstock.bindme.impl>
+
+                <com.overstock.bindme.matchers>
+                  Hamcrest matchers useful for data binding.
+                </com.overstock.bindme.matchers>
+
+                <com.overstock.bindme.properties>
+                  Commonly used custom properties.
+                </com.overstock.bindme.properties>
+
+                <com.overstock.bindme.swiz>
+                  Swiz annotation processor for automatically setting up / tearing down data
+                  bindings.
+                </com.overstock.bindme.swiz>
+
+                <com.overstock.bindme.util>
+                  General purpose utility functions.
+                </com.overstock.bindme.util>
+              </packageDescriptions>
+
+              <footer>
+                Copyright &copy; ${copyright.year} Overstock.com. All Rights Reserved.
+              </footer>
+
+            </configuration>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+
   <properties>
+    <copyright.year>2011</copyright.year>
     <flexcompiler.version>3.5.0.12683</flexcompiler.version>
 
     <!-- 3.8 -->
