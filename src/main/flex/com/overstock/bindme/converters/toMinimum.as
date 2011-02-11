@@ -1,21 +1,21 @@
 package com.overstock.bindme.converters {
 
 /**
- * Returns the minimum value in the arguments
- *
- * @param values the values from which the minimum will be taken
+ * Returns a var-arg converter function which returns the least value of the received arguments.
  */
-public function toMinimum( ... values ):* {
-  var result:* = null;
-  for each (var value:*in values) {
-    if (null == result) {
-      result = value;
+public function toMinimum():Function {
+  return function( ...values ):* {
+    var result:* = null;
+    for each (var value:*in values) {
+      if (null == result) {
+        result = value;
+      }
+      else if (null != value && value < result) {
+        result = value;
+      }
     }
-    else if (null != value && value < result) {
-      result = value;
-    }
+    return result;
   }
-  return result;
 }
 
 }

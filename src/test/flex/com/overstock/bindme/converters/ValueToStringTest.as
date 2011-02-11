@@ -9,11 +9,12 @@ public class ValueToStringTest {
 
   [Test]
   public function testValueToString():void {
-    assertThat(valueToString(null),
+    var converter:Function = valueToString();
+    assertThat(converter(null),
                equalTo(null));
-    assertThat(valueToString(NaN),
+    assertThat(converter(NaN),
                equalTo("NaN"));
-    assertThat(valueToString(1.2),
+    assertThat(converter(1.2),
                equalTo("1.2"));
   }
 

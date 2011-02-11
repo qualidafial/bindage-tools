@@ -9,11 +9,12 @@ public class ToMaximumTest {
 
   [Test]
   public function testToMaximum():void {
-    assertThat(toMaximum(),
+    var converter:Function = toMaximum();
+    assertThat(converter(),
                equalTo(null));
-    assertThat(toMaximum(null, 1),
+    assertThat(converter(null, 1),
                equalTo(1));
-    assertThat(toMaximum(3, 5, 1),
+    assertThat(converter(3, 5, 1),
                equalTo(5));
   }
 

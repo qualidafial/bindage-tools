@@ -1,14 +1,15 @@
 package com.overstock.bindme.converters {
 
 /**
- * Converts a String to a Number or null.  Null or empty strings are converted to null.
- *
- * @param value the String value to convert.  May be null.
+ * Returns a converter function which converts a <code>String</code> to a <code>Number</code>.
+ * Empty strings are converted to null.
  */
-public function toNumber( value:String ):* {
-  return (value == null || value.length == 0)
-      ? null
-      : Number(value);
+public function toNumber():Function {
+  return function( value:String ):* {
+    return (value == null || value.length == 0)
+        ? null
+        : Number(value);
+  }
 }
 
 }

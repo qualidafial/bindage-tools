@@ -435,7 +435,7 @@ public class BindTest implements ILoggingTarget {
   [Test( expected="ArgumentError" )]
   public function fromPropertyValidateLastOfTwoArgsNotMatcher():void {
     Bind.fromProperty(source, "foo")
-        .validate(emptyStringToNull, "stuff");
+        .validate(emptyStringToNull(), "stuff");
   }
 
   [Test]

@@ -9,11 +9,12 @@ public class ToMinimumTest {
 
   [Test]
   public function testToMinimum():void {
-    assertThat(toMinimum(),
+    var converter:Function = toMinimum();
+    assertThat(converter(),
                equalTo(null));
-    assertThat(toMinimum(null, 1),
+    assertThat(converter(null, 1),
                equalTo(1));
-    assertThat(toMinimum(3, 5, 1),
+    assertThat(converter(3, 5, 1),
                equalTo(1));
   }
 

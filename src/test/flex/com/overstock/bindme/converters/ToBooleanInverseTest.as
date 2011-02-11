@@ -9,18 +9,19 @@ public class ToBooleanInverseTest {
 
   [Test]
   public function testToBooleanInverse():void {
-    assertThat(toBooleanInverse(false),
+    var converter:Function = toBooleanInverse();
+    assertThat(converter(false),
                equalTo(true));
-    assertThat(toBooleanInverse(true),
+    assertThat(converter(true),
                equalTo(false));
 
-    assertThat(toBooleanInverse(null),
+    assertThat(converter(null),
                equalTo(true));
-    assertThat(toBooleanInverse(""),
+    assertThat(converter(""),
                equalTo(true));
-    assertThat(toBooleanInverse("non-empty string"),
+    assertThat(converter("non-empty string"),
                equalTo(false));
-    assertThat(toBooleanInverse({ some: "object" }),
+    assertThat(converter({ some: "object" }),
                equalTo(false));
   }
 

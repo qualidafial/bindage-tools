@@ -9,11 +9,12 @@ public class EmptyStringToNullTest {
 
   [Test]
   public function testEmptyStringToNull():void {
-    assertThat(emptyStringToNull(null),
+    var converter:Function = emptyStringToNull();
+    assertThat(converter(null),
                equalTo(null));
-    assertThat(emptyStringToNull(""),
+    assertThat(converter(""),
                equalTo(null));
-    assertThat(emptyStringToNull("abc"),
+    assertThat(converter("abc"),
                equalTo("abc"));
   }
 

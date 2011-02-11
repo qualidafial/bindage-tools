@@ -1,12 +1,12 @@
 package com.overstock.bindme.converters {
 
 /**
- * Converts an expression to its Boolean inverse.
- *
- * @param value the value to convert.
+ * Returns a function which converts a boolean value to its inverse.
  */
-public function toBooleanInverse( value:* ):Boolean {
-  return !value;
+public function toBooleanInverse():Function {
+  return function( value:Boolean ):Boolean {
+    return !value;
+  }
 }
 
 }

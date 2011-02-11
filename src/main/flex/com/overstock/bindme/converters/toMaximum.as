@@ -1,21 +1,21 @@
 package com.overstock.bindme.converters {
 
 /**
- * Returns the maximum value in the arguments
- *
- * @param values the values from which the maximum will be taken
+ * Returns a var-arg converter function which returns the greatest value of the received arguments.
  */
-public function toMaximum( ...values ):* {
-  var result:* = null;
-  for each (var value:*in values) {
-    if (null == result) {
-      result = value;
+public function toMaximum():Function {
+  return function( ...values ):* {
+    var result:* = null;
+    for each (var value:*in values) {
+      if (null == result) {
+        result = value;
+      }
+      else if (null != value && value > result) {
+        result = value;
+      }
     }
-    else if (null != value && value > result) {
-      result = value;
-    }
+    return result;
   }
-  return result;
 }
 
 }

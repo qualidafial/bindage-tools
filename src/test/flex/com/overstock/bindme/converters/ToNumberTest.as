@@ -9,13 +9,14 @@ public class ToNumberTest {
 
   [Test]
   public function testToNumber():void {
-    assertThat(toNumber(null),
+    var converter:Function = toNumber();
+    assertThat(converter(null),
                equalTo(null));
 
-    assertThat(toNumber(""),
+    assertThat(converter(""),
                equalTo(null));
 
-    assertThat(toNumber("1"),
+    assertThat(converter("1"),
                equalTo(1));
   }
 

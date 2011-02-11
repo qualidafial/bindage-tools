@@ -2,16 +2,16 @@ package com.overstock.bindme.converters {
 import org.flexunit.assertThat;
 import org.hamcrest.object.equalTo;
 
-public class ToValueTest {
+public class ToConstantTest {
 
-  function ToValueTest() {
+  function ToConstantTest() {
   }
 
   [Test]
-  public function testToValue():void {
+  public function testToConstant():void {
     var expected:Object = new Object();
 
-    var converter:Function = toValue(expected);
+    var converter:Function = toConstant(expected);
 
     assertThat(converter(),
                equalTo(expected));

@@ -1,14 +1,15 @@
 package com.overstock.bindme.converters {
 
 /**
- * Converts values to their String representation.  Null values are converted to null.
- *
- * @param value the value to convert.  May be null.
+ * Returns a converter function which converts values to their <code>toString()</code>
+ * representation.  Null values are converted to null.
  */
-public function valueToString( value:* ):String {
-  return value == null
-      ? null
-      : value.toString();
+public function valueToString():Function {
+  return function( value:* ):String {
+    return value == null
+        ? null
+        : value.toString();
+  }
 }
 
 }
