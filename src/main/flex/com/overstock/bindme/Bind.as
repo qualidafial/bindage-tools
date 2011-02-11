@@ -62,12 +62,17 @@ import com.overstock.bindme.util.setProperty;
  *
  * <h4>Bind from a property to a handler function:</h4>
  * <pre>
- *     function handler(person:Person):void {
- *       Alert.show("New person! "+person.toString());
+ *     function selectAllOrNone(all:Boolean):void {
+ *       if (all) {
+ *         selectAll();
+ *       }
+ *       else {
+ *         deselectAll();
+ *       }
  *     }
  * <br/>
- *     Bind.fromProperty(model, "person")
- *         .toFunction(handler);
+ *     Bind.fromProperty(selectAllCheckbox, "selection")
+ *         .toFunction(selectAllOrNone);
  * </pre>
  *
  * <h4>Interpolate values into Strings:</h4>
