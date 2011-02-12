@@ -2,6 +2,7 @@ package com.overstock.bindme.util {
 
 /**
  * Returns the current value of given property of the specified source object.
+ *
  * @param host the host object
  * @param properties array of individual properties in the property chain to retrieve. Valid
  * values include:

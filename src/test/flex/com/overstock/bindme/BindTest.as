@@ -43,7 +43,7 @@ public class BindTest implements ILoggingTarget {
   [Test]
   public function fromProperty():void {
     assertThat(Bind.fromProperty(source, "foo"),
-               instanceOf(IPipeline));
+               instanceOf(IPipelineBuilder));
   }
 
   [Test]

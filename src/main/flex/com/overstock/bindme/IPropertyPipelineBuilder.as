@@ -1,9 +1,9 @@
 package com.overstock.bindme {
 
 /**
- * A binding pipeline originating from a property of a particular source object.
+ * A single-source binding pipeline builder, binding from a property of a single source object.
  */
-public interface IPropertyPipeline extends IPipeline {
+public interface IPropertyPipelineBuilder extends IPipelineBuilder {
 
   /**
    * Returns the source object of the binding pipeline.

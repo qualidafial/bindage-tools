@@ -1,15 +1,15 @@
 package com.overstock.bindme.impl {
-import com.overstock.bindme.IPipeline;
+import com.overstock.bindme.IPipelineBuilder;
 
-public class MultiPipeline extends Pipeline {
+public class MultiPipelineBuilder extends PipelineBuilder {
   private var sources:Array;
 
-  public function MultiPipeline( sources:Array ) {
+  public function MultiPipelineBuilder( sources:Array ) {
     if (sources.length < 2) {
       throw new ArgumentError("Multi-source pipelines must provide at least two sources")
     }
     for each (var source:Object in sources) {
-      if (!(source is IPipeline)) {
+      if (!(source is IPipelineBuilder)) {
         throw new ArgumentError("Source pipelines must be instances of IPipeline");
       }
     }
@@ -27,7 +27,7 @@ public class MultiPipeline extends Pipeline {
     var runner:Function = pipelineRunner;
 
     for (var i:int = 0; i < sources.length; i++) {
-      var source:IPipeline = sources[i];
+      var source:IPipelineBuilder = sources[i];
 
       var setArg:Function = setArgPipeline(argSetter(args, i), runner);
       runner = source.runner(setArg);
@@ -37,7 +37,7 @@ public class MultiPipeline extends Pipeline {
   }
 
   override public function watch( handler:Function ):void {
-    for each (var source:IPipeline in sources) {
+    for each (var source:IPipelineBuilder in sources) {
       source.watch(handler);
     }
   }

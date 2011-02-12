@@ -1,16 +1,16 @@
 package com.overstock.bindme {
 
 /**
- * A builder interface for data binding pipelines.
+ * Builder interface for data binding pipelines.
  */
-public interface IPipeline {
+public interface IPipelineBuilder {
 
   /**
    * Appends the given step to the end of this binding pipeline.
    * @param step the pipeline step to append.
-   * @return this IPipeline instance for method chaining.
+   * @return this IPipelineStep instance for method chaining.
    */
-  function append( step:IPipelineStep ):IPipeline;
+  function append( step:IPipelineStep ):IPipelineBuilder;
 
   /**
    * Appends a conversion step to the end of the binding pipeline.  During this step, the current
@@ -19,26 +19,25 @@ public interface IPipeline {
    *
    * <p>
    * If this is a <code>fromAll</code> pipeline, all the values in the pipeline are passed to the
-   * converter function in a single call, as successive arguments.  If you are trying to convert
-   * each argument individually, use <code>map(Function)</code> instead.
+   * converter function in a single call, as successive arguments.
    * </p>
    *
    * @param converter a function which accepts the value(s) in the binding pipeline, and returns
    *        the converted value.
-   * @return this IPipeline instance for method chaining.
+   * @return this IPipelineBuilder instance for method chaining.
    * @throws ArgumentError if the converter argument is null
    */
-  function convert( converter:Function ):IPipeline;
+  function convert( converter:Function ):IPipelineBuilder;
 
   /**
    * Appends a delay step to the end of the binding pipeline.  Value(s) in the pipeline will be
    * held for <code>delay</code> milliseconds before sending them to the next step in the
    * pipeline.  If any new value(s) are received before the delay has elapsed, the old value(s)
-   * will be discarded, the delay starts over with the new value(s).
+   * are discarded, and the delay starts over with the new value(s).
    *
    * @param delayMillis the delay in milliseconds.
    */
-  function delay( delayMillis:int ):IPipeline;
+  function delay( delayMillis:int ):IPipelineBuilder;
 
   /**
    * Appends a formatting step to the end of the binding pipeline.  During this step, the current
@@ -51,9 +50,9 @@ public interface IPipeline {
    *
    * <pre>
    *   person.name = "John"; // {0}
-   *   Bind.from(person, "name")
+   *   Bind.fromProperty(person, "name")
    *       .format("Welcome, {0}!")
-   *       .to(greetingLabel, "text"); // "Welcome, John!"
+   *       .toProperty(greetingLabel, "text"); // "Welcome, John!"
    * </pre>
    *
    * <p>
@@ -66,39 +65,40 @@ public interface IPipeline {
    *   person.firstName = "Me"
    *   person.lastName = "Hearty"
    *   Bind.fromAll(
-   *       Bind.from(person, "firstName"), // {0}
-   *       Bind.from(person, "lastName")   // {1}
+   *       Bind.fromProperty(person, "firstName"), // {0}
+   *       Bind.fromProperty(person, "lastName")   // {1}
    *       )
    *       .format("Ahoy, {0} {1}!", greetingString)
    *       .to(greetingLabel, "text"); // "Ahoy, Me Hearty!"
    * </pre>
    */
-  function format( format:String ):IPipeline;
+  function format( format:String ):IPipelineBuilder;
 
   /**
    * Prepends a step ensuring that this binding pipeline does not execute concurrently with any other
    * binding in the same group.  Binding groups are always enforced before any other steps in the
-   * pipeline can occur.  Pipelines can belong to an arbitrary number of groups.
+   * pipeline can occur.  Pipelines can belong to more than one group, but should not be added to
+   * the same group twice.
    *
    * @param group the group the binding should be added to.
-   * @return this IPipeline instance for method chaining.
+   * @return this IPipelineBuilder instance for method chaining.
    * @throws ArgumentError if the lock argument is null.
    */
-  function group( group:BindGroup ):IPipeline;
+  function group( group:BindGroup ):IPipelineBuilder;
 
   /**
    * Appends a logging step to the end of the binding pipeline.  The given message is sent to the
    * Bind class's logger before sending the current value to the next step in the pipeline.
    *
    * @param logLevel log level constant defined in mx.logging.LogEventLevel
-   * @param message the message to be logged.  The log message may be parameterized as follows:
-   *        <code>{0}</code> - the current value in the binding pipeline i.e. the value being set
-   *        on the target
-   * @return this IPipeline instance for method chaining.
+   * @param message the message to be logged.  Similar to the <code>format</code> step,
+   * value(s) in the pipeline may be interpolated into the log message using
+   * <code>{<i>index</i>}</code> notation.  e.g. "nameInput.text changed to {0}"
+   * @return this IPipelineBuilder instance for method chaining.
    * @throws ArgumentError if the message argument is null.
    */
   function log( level:int,
-                message:String ):IPipeline;
+                message:String ):IPipelineBuilder;
 
   /**
    * Appends a validation step to the end of the binding pipeline.  The current value(s) are
@@ -106,25 +106,25 @@ public interface IPipeline {
    * match, then the pipeline proceeds on to the next step with the same value(s).  If the
    * value(s) do not match, then the pipeline aborts execution.
    *
-   * @param condition the condition that should be validated before proceeding.  Valid values:
+   * @param condition the condition that should be validated before proceeding.  Valid arguments:
    * <ul>
-   * <li>A <code>function(...values):*</code> followed by a <code>Matcher</code>.  In this case
-   * the function is called with the values in the pipeline, and the result is validated against
-   * the matcher.</li>
+   * <li>A <code>function(arg0, arg1, ... argN):*</code> followed by a <code>Matcher</code>.  In this
+   * case the function is called with the value(s) in the pipeline, and the result is validated
+   * against the matcher.</li>
    * <li>A <code>Matcher</code>.  In this case, the value(s) in the pipeline are validated
    * against the matcher.</li>
    * </ul>
-   * @return this IPipeline instance for method chaining.
+   * @return this IPipelineBuilder instance for method chaining.
    * @throws ArgumentError if the validator argument is null
    */
-  function validate( ...condition ):IPipeline;
+  function validate( ...condition ):IPipelineBuilder;
 
   /**
-   * Builds the binding pipeline by setting the current value(s) in the pipeline to the specified
-   * property of the specified target object.
+   * Builds a new binding pipeline by setting the current value(s) in the pipeline to the
+   * specified property of the specified target object.
    *
    * @param object the target object that hosts the property to be set.
-   * @param properties one or more object specifying the property to be written to on the target
+   * @param properties one or more objects specifying the property to be written to on the target
    * object.  Valid values include:
    * <ul>
    * <li>A String containing name(s) of a public bindable property of the target object.  Nested
@@ -142,27 +142,27 @@ public interface IPipeline {
    * </pre>
    * </li>
    * </ul>
-   * @return this IPipeline instance for method chaining.
+   * @return this IPipelineBuilder instance for method chaining.
    * @throws ArgumentError if object is null, or if properties contains any null or invalid
    * values.
    */
   function toProperty( target:Object,
-                       ...properties ):IPipeline;
+                       ...properties ):IPipelineBuilder;
 
   /**
-   * Builds the binding pipeline by passing the current value(s) in the pipeline to the
+   * Builds a new binding pipeline by passing the current value(s) in the pipeline to the
    * specified setter function.
    *
    * @param func a function which accepts the current value(s) in the pipeline
-   * @return this IPipeline instance for method chaining.
+   * @return this IPipelineBuilder instance for method chaining.
    * @throws ArgumentError if the setter argument is null
    */
-  function toFunction( func:Function ):IPipeline;
+  function toFunction( func:Function ):IPipelineBuilder;
 
   /**
-   * Returns a <code>function():void</code> which, when invoked,
-   * retrieves the binding source value(s) and pushes them through the binding pipeline,
-   * with the final value(s) sent to the specified pipeline function.
+   * Returns a <code>function():void</code> which, when invoked, retrieves the binding source
+   * value(s) and pushes them through the binding pipeline, with the final value(s) sent to the
+   * specified pipeline function.
    *
    * @param func a <code>function(value0, ...valueN):void</code> which will be invoked with the
    * value(s) in the pipeline when returned runner is invoked.
@@ -173,11 +173,11 @@ public interface IPipeline {
   function runner( func:Function ):Function;
 
   /**
-   * Sets up event listeners, such that the specified runner is invoked (with no arguments)
+   * Sets up event listeners, such that the specified function is invoked (with no arguments)
    * whenever any of this pipeline's binding sources changes values.
    *
-   * @param runner a <code>function(...values):void</code> which will be invoked whenever
-   * any of thispipeline's binding sources changes values.
+   * @param runner a <code>function():void</code> which will be invoked whenever any of
+   * this pipeline's binding sources changes value.
    */
   function watch( runner:Function ):void;
 

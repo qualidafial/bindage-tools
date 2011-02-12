@@ -1,6 +1,12 @@
 package com.overstock.bindme {
 import mx.binding.utils.ChangeWatcher;
 
+/**
+ * Helper API for tracking the <code>ChangeWatcher</code> instances created by the
+ * <code>Bind</code> class, so that they can be disposed of properly.  If your application
+ * regularly creates and discards databound elements, this class can help clean up bindings from
+ * discarded elements to avoid memory leaks.
+ */
 public class BindTracker {
 
   [Exclude]
@@ -43,7 +49,7 @@ public class BindTracker {
   /**
    * Called internally whenever a binding pipeline creates a ChangeWatcher.
    * @param changeWatcher the change watcher that was created.
-   * @see com.overstock.bindme.IPipeline.watch
+   * @see com.overstock.bindme.IPipelineBuilder.watch
    */
   public static function changeWatcherCreated( changeWatcher:ChangeWatcher ):void {
     if (collected != null) {

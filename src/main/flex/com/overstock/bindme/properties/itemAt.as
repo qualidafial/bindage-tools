@@ -1,7 +1,7 @@
 package com.overstock.bindme.properties {
 
 /**
- * Returns a property object for the item at the specified index.  May be used with
+ * Returns a custom property object for the item at the specified index.  May be used with
  * Array and ILists.
  *
  * @param index the item index

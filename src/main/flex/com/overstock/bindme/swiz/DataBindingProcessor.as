@@ -14,6 +14,21 @@ import org.swizframework.core.Bean;
 import org.swizframework.processors.BaseMetadataProcessor;
 import org.swizframework.reflection.IMetadataTag;
 
+/**
+ * Swiz metadata processor for methods that set up data bindings.  By default, this class
+ * processes any public methods annotated with <code>[DataBinding]</code>.
+ *
+ * <p>
+ * Any bindings created in a <code>[DataBinding]</code> method are managed by this
+ * processor.  When the view or bean is torn down, all data bindings created during
+ * set up are automatically disposed.
+ * </p>
+ *
+ * <p>
+ * UI controls (i.e. any instance of ILayoutManagerClient) are not set up until after
+ * <code>FlexEvent.CREATION_COMPLETE</code>.
+ * </p>
+ */
 public class DataBindingProcessor extends BaseMetadataProcessor {
 
   // ========================================

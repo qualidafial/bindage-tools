@@ -1,6 +1,6 @@
 package com.overstock.bindme.impl {
 import com.overstock.bindme.BindGroup;
-import com.overstock.bindme.IPipeline;
+import com.overstock.bindme.IPipelineBuilder;
 import com.overstock.bindme.IPipelineStep;
 import com.overstock.bindme.util.applyArgs;
 import com.overstock.bindme.util.preventRecursion;
@@ -8,48 +8,48 @@ import com.overstock.bindme.util.setProperty;
 
 import flash.events.Event;
 
-public class Pipeline implements IPipeline {
+public class PipelineBuilder implements IPipelineBuilder {
   private var groups:Array;
   private var steps:Array;
 
-  public function Pipeline() {
+  public function PipelineBuilder() {
     groups = [];
     steps = [];
   }
 
-  public function append( step:IPipelineStep ):IPipeline {
+  public function append( step:IPipelineStep ):IPipelineBuilder {
     steps.push(step);
     return this;
   }
 
-  public function convert( converter:Function ):IPipeline {
+  public function convert( converter:Function ):IPipelineBuilder {
     return append(new ConvertStep(converter));
   }
 
-  public function delay( delayMillis:int ):IPipeline {
+  public function delay( delayMillis:int ):IPipelineBuilder {
     return append(new DelayStep(delayMillis));
   }
 
-  public function format( format:String ):IPipeline {
+  public function format( format:String ):IPipelineBuilder {
     return append(new FormatStep(format));
   }
 
-  public function group( group:BindGroup ):IPipeline {
+  public function group( group:BindGroup ):IPipelineBuilder {
     groups.push(group);
     return this;
   }
 
   public function log( level:int,
-                       message:String ):IPipeline {
+                       message:String ):IPipelineBuilder {
     return append(new LogStep(level, message));
   }
 
-  public function validate( ...condition ):IPipeline {
+  public function validate( ...condition ):IPipelineBuilder {
     return append(new ValidateStep(condition));
   }
 
   public function toProperty( target:Object,
-                              ...properties:Array ):IPipeline {
+                              ...properties:Array ):IPipelineBuilder {
     if (null == target) {
       throw new ArgumentError("target was null");
     }
@@ -128,7 +128,7 @@ public class Pipeline implements IPipeline {
     return result;
   }
 
-  public function toFunction( func:Function ):IPipeline {
+  public function toFunction( func:Function ):IPipelineBuilder {
     var pipelineRunner:Function = runner(func);
     pipelineRunner = preventRecursion(pipelineRunner);
 

@@ -4,7 +4,7 @@ import com.overstock.bindme.util.getProperty;
 
 import mx.binding.utils.ChangeWatcher;
 
-public class PropertyPipeline extends Pipeline implements IPropertyPipeline {
+public class PropertyPipelineBuilder extends PipelineBuilder implements IPropertyPipelineBuilder {
 
   private var _source:Object;
   private var _properties:Array;
@@ -17,7 +17,7 @@ public class PropertyPipeline extends Pipeline implements IPropertyPipeline {
     return _properties.slice();
   }
 
-  public function PropertyPipeline( source:Object,
+  public function PropertyPipelineBuilder( source:Object,
                                     properties:Array ) {
     if (null == source) {
       throw new ArgumentError("source was null");

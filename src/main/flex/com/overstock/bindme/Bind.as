@@ -1,6 +1,6 @@
 package com.overstock.bindme {
-import com.overstock.bindme.impl.MultiPipeline;
-import com.overstock.bindme.impl.PropertyPipeline;
+import com.overstock.bindme.impl.MultiPipelineBuilder;
+import com.overstock.bindme.impl.PropertyPipelineBuilder;
 import com.overstock.bindme.util.applyArgs;
 import com.overstock.bindme.util.setProperty;
 
@@ -203,8 +203,9 @@ public class Bind {
   }
 
   /**
-   * Creates and returns a new binding pipeline, starting with the specified property of the
-   * specified source object.
+   * Returns a new binding pipeline builder, which binds from the specified property of the given
+   * source
+   * object.
    *
    * @param source the object that hosts the property to be watched.
    * @param properties one or more objects specifying the property to be watched on the source
@@ -224,13 +225,12 @@ public class Bind {
    * valid value.
    */
   public static function fromProperty( source:Object,
-                                       ... properties ):IPropertyPipeline {
-    return new PropertyPipeline(source, properties);
+                                       ... properties ):IPropertyPipelineBuilder {
+    return new PropertyPipelineBuilder(source, properties);
   }
 
   /**
-   * Creates and returns a new binding pipeline, starting with the values from each of the
-   * specified source pipelines.
+   * Returns a new binding pipeline builder, which binds from all the specified source pipelines.
    *
    * <p>
    * Example:
@@ -248,7 +248,7 @@ public class Bind {
    *     .convert(function(normalPrice:Number, discountPrice:Number):String {
    *       return (100 * (normalPrice - discountPrice) / normalPrice) + '%';
    *     })
-   *     .to(discountPercentText, 'text');
+   *     .toProperty(discountPercentText, 'text');
    * </pre>
    *
    * <p>
@@ -261,30 +261,29 @@ public class Bind {
    * or setter function.
    * </p>
    *
-   * @param sources an array of Bind instances.
+   * @param sources an array of IPipelineBuilder instances.
    */
-  public static function fromAll( ... pipelines ):IPipeline {
-    return new MultiPipeline(pipelines);
+  public static function fromAll( ... pipelines ):IPipelineBuilder {
+    return new MultiPipelineBuilder(pipelines);
   }
 
   /**
-   * Creates a two-way binding between the specified source and target binding pipelines.
+   * Creates a two-way binding between the specified pipelines.
    *
    * @param source the source pipeline from which the target will be initially populated.
    * @param target the target pipeline which will be initially populated from the source
-   * @param group a semaphore for ensuring the two binding pipelines never execute at the same
-   * time.  Lock objects help prevent stack overflows and crosstalk between bindings by
-   * preventing more than one binding in a group from executing at the same time.  If omitted,
-   * a Lock object will be provided automatically.
+   * @param group (optional) the BindGroup that each binding will belong to.  Grouping bindings
+   * ensures that only one binding in a group may execute at a time.  If this parameter is
+   * omitted, a BindGroup will be provided automatically.
    * @throws ArgumentError if either source or target is not an IPropertyPipeline instance.
    */
-  public static function twoWay( source:IPipeline,
-                                 target:IPipeline,
+  public static function twoWay( source:IPipelineBuilder,
+                                 target:IPipelineBuilder,
                                  group:BindGroup = null ):void {
-    if (!(source is IPropertyPipeline)) {
+    if (!(source is IPropertyPipelineBuilder)) {
       throw new ArgumentError("Source pipeline must originate from a single property");
     }
-    if (!(target is IPropertyPipeline)) {
+    if (!(target is IPropertyPipelineBuilder)) {
       throw new ArgumentError("Target pipeline must originate from a single property");
     }
 
@@ -295,8 +294,8 @@ public class Bind {
     source.group(group);
     target.group(group);
 
-    var sourcePipeline:IPropertyPipeline = IPropertyPipeline(source);
-    var targetPipeline:IPropertyPipeline = IPropertyPipeline(target);
+    var sourcePipeline:IPropertyPipelineBuilder = IPropertyPipelineBuilder(source);
+    var targetPipeline:IPropertyPipelineBuilder = IPropertyPipelineBuilder(target);
 
     var sourceSetter:Function = applyArgs(setProperty,
                                           sourcePipeline.source,
