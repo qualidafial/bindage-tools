@@ -18,7 +18,7 @@ public class PropertyPipelineBuilder extends PipelineBuilder implements IPropert
   }
 
   public function PropertyPipelineBuilder( source:Object,
-                                    properties:Array ) {
+                                           properties:Array ) {
     if (null == source) {
       throw new ArgumentError("source was null");
     }

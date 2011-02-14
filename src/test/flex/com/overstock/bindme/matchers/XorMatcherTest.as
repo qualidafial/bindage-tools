@@ -45,11 +45,12 @@ public class XorMatcherTest {
 
   private function mockDescribeTo( mock:Matcher,
                                    descriptionString:String ):void {
+    var mockDescribeTo:Function = function( description:Description ):void {
+      description.appendText(descriptionString);
+    };
+
     given(mock.describeTo(any()))
-        .will(callFunction(
-                          function( description:Description ):void {
-                            description.appendText(descriptionString);
-                          }));
+        .will(callFunction(mockDescribeTo));
   }
 
   [Test]

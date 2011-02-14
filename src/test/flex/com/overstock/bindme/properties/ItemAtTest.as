@@ -21,10 +21,10 @@ public class ItemAtTest {
   public function itemAtProperties():void {
     assertThat(itemAt(2),
                hasProperties({
-                               name: "getItemAt",
-                               getter: instanceOf(Function),
-                               setter:instanceOf(Function)
-                             }));
+                 name: "getItemAt",
+                 getter: instanceOf(Function),
+                 setter:instanceOf(Function)
+               }));
   }
 
   [Test]

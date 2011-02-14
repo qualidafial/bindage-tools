@@ -557,16 +557,16 @@ public class BindTest implements ILoggingTarget {
 
     assertThat(logEvents,
                hasItem(hasProperties({
-                                       level:LogEventLevel.INFO,
-                                       message: "value is abc"
-                                     })));
+                 level:LogEventLevel.INFO,
+                 message: "value is abc"
+               })));
 
     source.foo = "xyz";
     assertThat(logEvents,
                hasItem(hasProperties({
-                                       level:LogEventLevel.INFO,
-                                       message: "value is xyz"
-                                     })));
+                 level:LogEventLevel.INFO,
+                 message: "value is xyz"
+               })));
   }
 
   [Test( expected="ArgumentError" )]
@@ -1155,18 +1155,19 @@ public class BindTest implements ILoggingTarget {
         .group(group)
         .toProperty(target, "baz"); // e.g. a text input: "Enter foo name:"
 
+    var selectionAndTextToText:Function = function( selection:Boolean,
+                                                    text:String ):String {
+      return selection
+          ? text
+          : null;
+    };
+
     Bind.fromAll(
         Bind.fromProperty(target, "bar"),
         Bind.fromProperty(target, "baz")
         )
         .group(group)
-        .convert(
-                function( selection:Boolean,
-                          text:String ):String {
-                  return selection
-                      ? text
-                      : null;
-                })
+        .convert(selectionAndTextToText)
         .toProperty(source, "foo");
 
     assertThat(target.bar,

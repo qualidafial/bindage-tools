@@ -56,8 +56,8 @@ public class DataBindingProcessor extends BaseMetadataProcessor {
    */
   public function DataBindingProcessor( metadataNames:Array = null ) {
     super(metadataNames == null
-              ? [ DATA_BINDING ]
-              : metadataNames,
+        ? [ DATA_BINDING ]
+        : metadataNames,
           DataBindingMetadataTag);
   }
 
