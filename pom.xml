@@ -204,9 +204,10 @@
   <properties>
     <copyright.year>2011</copyright.year>
     <flexcompiler.version>3.5.0.12683</flexcompiler.version>
+    <!--<flexcompiler.version>4.0.0.14159</flexcompiler.version>-->
 
-    <!-- 3.8 -->
     <flexmojos-maven-plugin.version>3.5.0</flexmojos-maven-plugin.version>
+    <!--<flexmojos-maven-plugin.version>3.8.0</flexmojos-maven-plugin.version>-->
   </properties>
 
 </project>
