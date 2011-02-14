@@ -28,7 +28,7 @@ package com.overstock.bindme {
  *
  * <p>
  * Grouping bindings helps solve this type of problem.  When two or more bindings form a loop,
- * they should be grouped so that round-trip problems do not cause unexpected behavior..
+ * they should be grouped so that round-trip problems do not cause unexpected behavior.
  * </p>
  */
 public class BindGroup {

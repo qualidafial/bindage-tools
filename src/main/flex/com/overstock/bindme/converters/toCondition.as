@@ -2,9 +2,10 @@ package com.overstock.bindme.converters {
 import org.hamcrest.Matcher;
 
 /**
- * Returns a function which returns a Boolean of whether the value matches the given condition.
+ * Returns a converter function which returns a Boolean value indicating whether the value(s) in
+ * the pipeline match the specified condition.
  *
- * @param condition the condition that values will be tested against.
+ * @param condition the condition that pipeline value(s) will be tested against.
  */
 public function toCondition( condition:Matcher ):Function {
   return function( value:* ):Boolean {

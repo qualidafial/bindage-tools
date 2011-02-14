@@ -12,8 +12,8 @@ import com.overstock.bindme.util.setProperty;
  *
  * <h4>Simple one-way binding:</h4>
  * <pre>
- * Bind.fromProperty(model, "submitEnabled")
- *     .toProperty(submitButton, "enabled");
+ *     Bind.fromProperty(model, "submitEnabled")
+ *         .toProperty(submitButton, "enabled");
  * </pre>
  *
  * <h4>Two-way bindings:</h4>
@@ -62,13 +62,13 @@ import com.overstock.bindme.util.setProperty;
  *
  * <h4>Two-way binding with validation and conversion</h4>
  * <pre>
- * Bind.twoWay(
- *     Bind.fromProperty(model, "age")
- *         .convert(valueToString()),
- *     Bind.fromProperty(ageInput, "text")
- *         .validate(isNumber())
- *         .convert(toNumber())
- *         .validate(greaterThan(0)));
+ *     Bind.twoWay(
+ *         Bind.fromProperty(model, "age")
+ *             .convert(valueToString()),
+ *         Bind.fromProperty(ageInput, "text")
+ *             .validate(isNumber())
+ *             .convert(toNumber())
+ *             .validate(greaterThan(0)));
  * </pre>
  *
  * <h4>Bind from a property to a handler function:</h4>
