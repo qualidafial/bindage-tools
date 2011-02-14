@@ -3,5 +3,6 @@ syntax: glob
 *.iml
 *.ipr
 *.iws
+*_temp_flexunit_config.xml
 
 target/
