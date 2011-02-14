@@ -451,6 +451,31 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test]
+  public function fromPropertyValidateWithFunctionToProperty():void {
+    source.foo = "abc";
+    target.bar = "xyz";
+
+    Bind.fromProperty(source, "foo")
+        .validate(
+        function( value:String ):Boolean {
+          return value.length > 0 && value.length < 5 && value.charAt(1) == "a";
+        })
+        .toProperty(target, "bar");
+
+    assertThat(target.bar,
+               equalTo("xyz")); // vaildation fails, no change
+
+    source.foo = "bar";
+
+    assertThat(target.bar,
+               equalTo("bar")); // validation passes, new value set
+
+    source.foo = "baz";
+    assertThat(target.bar,
+               equalTo("baz")); // validation passes, new value set
+  }
+
+  [Test]
   public function fromPropertyValidateConvertToProperty():void {
     source.foo = "5";
     target.bar = -1;

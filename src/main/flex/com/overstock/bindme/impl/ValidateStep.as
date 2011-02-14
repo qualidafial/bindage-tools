@@ -2,6 +2,7 @@ package com.overstock.bindme.impl {
 import com.overstock.bindme.IPipelineStep;
 
 import org.hamcrest.Matcher;
+import org.hamcrest.object.equalTo;
 
 /**
  * @private
@@ -13,11 +14,17 @@ public class ValidateStep implements IPipelineStep {
 
   public function ValidateStep( args:Array ) {
     if (args.length == 1) {
-      if (!(args[0] is Matcher)) {
+      if (args[0] is Matcher) {
+        this.func = null;
+        this.matcher = args[0];
+      }
+      else if (args[0] is Function) {
+        this.func = args[0];
+        this.matcher = equalTo(true);
+      }
+      else {
         throw usageError();
       }
-
-      this.matcher = args[0];
     }
     else if (args.length == 2) {
       if (!(args[0] is Function && args[1] is Matcher)) {
@@ -32,7 +39,7 @@ public class ValidateStep implements IPipelineStep {
     }
   }
 
-  private function usageError():ArgumentError {
+  private static function usageError():ArgumentError {
     throw new ArgumentError(
         "Expecting arguments (attribute:Function, condition:Matcher) or (condition:Matcher)");
   }

@@ -115,11 +115,14 @@ public interface IPipelineBuilder {
    *
    * @param condition the condition that should be validated before proceeding.  Valid arguments:
    * <ul>
-   * <li>A <code>function(arg0, arg1, ... argN):*</code> followed by a <code>Matcher</code>.  In this
-   * case the function is called with the value(s) in the pipeline, and the result is validated
-   * against the matcher.</li>
    * <li>A <code>Matcher</code>.  In this case, the value(s) in the pipeline are validated
    * against the matcher.</li>
+   * <li>A <code>function(arg0, arg1, ... argN):Boolean</code>.  In this case, the function is
+   * called with the value(s) in the pipeline, and the result determines whether the pipeline
+   * continues executing.</li>
+   * <li>A <code>function(arg0, arg1, ... argN):*</code> followed by a <code>Matcher</code>.  In
+   * this case the function is called with the value(s) in the pipeline, and the result is
+   * validated against the matcher.</li>
    * </ul>
    * @return this IPipelineBuilder instance for method chaining.
    * @throws ArgumentError if the validator argument is null
