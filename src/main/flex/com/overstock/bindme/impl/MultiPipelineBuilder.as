@@ -1,6 +1,9 @@
 package com.overstock.bindme.impl {
 import com.overstock.bindme.IPipelineBuilder;
 
+/**
+ * @private
+ */
 public class MultiPipelineBuilder extends PipelineBuilder {
   private var sources:Array;
 

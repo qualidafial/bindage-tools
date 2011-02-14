@@ -4,6 +4,9 @@ import com.overstock.bindme.util.getProperty;
 
 import mx.binding.utils.ChangeWatcher;
 
+/**
+ * @private
+ */
 public class PropertyPipelineBuilder extends PipelineBuilder implements IPropertyPipelineBuilder {
 
   private var _source:Object;

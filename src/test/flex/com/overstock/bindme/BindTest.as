@@ -73,11 +73,6 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test( expected="ArgumentError" )]
-  public function fromPropertyEmptyProperties():void {
-    Bind.fromProperty(source);
-  }
-
-  [Test( expected="ArgumentError" )]
   public function fromPropertyNullProperty():void {
     Bind.fromProperty(source, null);
   }
@@ -86,12 +81,6 @@ public class BindTest implements ILoggingTarget {
   public function fromPropertyToPropertyNullSource():void {
     Bind.fromProperty(source, "foo")
         .toProperty(null, "bar");
-  }
-
-  [Test( expected="ArgumentError" )]
-  public function fromPropertyToPropertyEmptyProperties():void {
-    Bind.fromProperty(source, "foo")
-        .toProperty(source);
   }
 
   [Test( expected="ArgumentError" )]

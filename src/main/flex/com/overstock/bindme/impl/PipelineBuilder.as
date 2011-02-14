@@ -8,6 +8,9 @@ import com.overstock.bindme.util.setProperty;
 
 import flash.events.Event;
 
+/**
+ * @private
+ */
 public class PipelineBuilder implements IPipelineBuilder {
   private var groups:Array;
   private var steps:Array;
@@ -49,7 +52,10 @@ public class PipelineBuilder implements IPipelineBuilder {
   }
 
   public function toProperty( target:Object,
-                              ...properties:Array ):IPipelineBuilder {
+                              property:Object,
+                              ...additionalProperties ):IPipelineBuilder {
+    var properties:Array = [property].concat(additionalProperties);
+
     if (null == target) {
       throw new ArgumentError("target was null");
     }

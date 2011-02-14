@@ -9,7 +9,9 @@ import mx.binding.utils.ChangeWatcher;
  */
 public class BindTracker {
 
-  [Exclude]
+  /**
+   * @private
+   */
   public function BindTracker() {
   }
 
@@ -50,6 +52,7 @@ public class BindTracker {
    * Called internally whenever a binding pipeline creates a ChangeWatcher.
    * @param changeWatcher the change watcher that was created.
    * @see com.overstock.bindme.IPipelineBuilder.watch
+   * @private
    */
   public static function changeWatcherCreated( changeWatcher:ChangeWatcher ):void {
     if (collected != null) {

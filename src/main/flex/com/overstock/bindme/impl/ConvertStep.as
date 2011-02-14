@@ -1,6 +1,9 @@
 package com.overstock.bindme.impl {
 import com.overstock.bindme.IPipelineStep;
 
+/**
+ * @private
+ */
 public class ConvertStep implements IPipelineStep {
 
   private var converter:Function;

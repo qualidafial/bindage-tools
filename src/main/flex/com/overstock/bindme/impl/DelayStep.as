@@ -4,6 +4,9 @@ import com.overstock.bindme.IPipelineStep;
 import flash.events.TimerEvent;
 import flash.utils.Timer;
 
+/**
+ * @private
+ */
 public class DelayStep implements IPipelineStep {
 
   private var delayMillis:int;

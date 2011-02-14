@@ -2,6 +2,13 @@ package com.overstock.bindme {
 
 /**
  * Builder interface for data binding pipelines.
+ *
+ * <p>
+ * <em>Note</em>: This interface is not intended to be implemented directly by clients.  Clients
+ * should instead extend one of the included implementations of this interface.  In future
+ * versions, new methods might be added to this interface, which would break any direct
+ * implementations.
+ * </p>
  */
 public interface IPipelineBuilder {
 
@@ -124,8 +131,8 @@ public interface IPipelineBuilder {
    * specified property of the specified target object.
    *
    * @param object the target object that hosts the property to be set.
-   * @param properties one or more objects specifying the property to be written to on the target
-   * object.  Valid values include:
+   * @param property an object specifying the property to be written to on the target object.
+   * Valid values include:
    * <ul>
    * <li>A String containing name(s) of a public bindable property of the target object.  Nested
    * properties may be expressed using dot notation e.g. "foo.bar.baz"</li>
@@ -142,12 +149,15 @@ public interface IPipelineBuilder {
    * </pre>
    * </li>
    * </ul>
+   * @param additionalProperties (optional) any additional properties in the property chain.  Valid
+   * values are same as the <code>property</code> parameter.
    * @return this IPipelineBuilder instance for method chaining.
    * @throws ArgumentError if object is null, or if properties contains any null or invalid
    * values.
    */
   function toProperty( target:Object,
-                       ...properties ):IPipelineBuilder;
+                       property:Object,
+                       ...additionalProperties ):IPipelineBuilder;
 
   /**
    * Builds a new binding pipeline by passing the current value(s) in the pipeline to the

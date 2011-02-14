@@ -3,6 +3,9 @@ import com.overstock.bindme.IPipelineStep;
 
 import mx.utils.StringUtil;
 
+/**
+ * @private
+ */
 public class FormatStep implements IPipelineStep {
 
   private var format:String;

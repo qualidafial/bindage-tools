@@ -198,7 +198,9 @@ import com.overstock.bindme.util.setProperty;
  * </pre>
  */
 public class Bind {
-  [Exclude]
+  /**
+   * @private
+   */
   public function Bind() {
   }
 
@@ -208,8 +210,8 @@ public class Bind {
    * object.
    *
    * @param source the object that hosts the property to be watched.
-   * @param properties one or more objects specifying the property to be watched on the source
-   * object.  Valid values include:
+   * @param property an object specifying the property to be watched on the source object.  Valid
+   * values include:
    * <ul>
    * <li>A String containing name(s) of a public bindable property of the source object.  Nested
    * properties may be expressed using dot notation e.g. "foo.bar.baz"</li>
@@ -220,13 +222,16 @@ public class Bind {
    * </pre>
    * </li>
    * </ul>
-   * @return the new binding pipeline.
+   * @param additionalProperties (optional) any additional properties in the source property chain.
+   * Valid values are same as the <code>property</code> parameter.
+   * @return the new binding pipeline builder.
    * @throws ArgumentError if source is null, or if any element of properties is null or not a
    * valid value.
    */
   public static function fromProperty( source:Object,
-                                       ... properties ):IPropertyPipelineBuilder {
-    return new PropertyPipelineBuilder(source, properties);
+                                       property:Object,
+                                       ... additionalProperties ):IPropertyPipelineBuilder {
+    return new PropertyPipelineBuilder(source, [property].concat(additionalProperties));
   }
 
   /**
@@ -262,6 +267,7 @@ public class Bind {
    * </p>
    *
    * @param sources an array of IPipelineBuilder instances.
+   * @return the new binding pipeline builder.
    */
   public static function fromAll( ... pipelines ):IPipelineBuilder {
     return new MultiPipelineBuilder(pipelines);

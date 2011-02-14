@@ -2,6 +2,9 @@ package com.overstock.bindme.matchers {
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
+/**
+ * @private
+ */
 public class XorMatcher implements Matcher {
   private var a:Matcher;
   private var b:Matcher;

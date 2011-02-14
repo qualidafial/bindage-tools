@@ -3,6 +3,9 @@ import com.overstock.bindme.IPipelineStep;
 
 import org.hamcrest.Matcher;
 
+/**
+ * @private
+ */
 public class ValidateStep implements IPipelineStep {
 
   private var func:Function;
