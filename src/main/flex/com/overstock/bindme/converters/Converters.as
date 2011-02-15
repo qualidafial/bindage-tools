@@ -2,7 +2,8 @@ package com.overstock.bindme.converters {
 import org.hamcrest.Matcher;
 
 /**
- * Documentation for top-level functions in the BindMe converters package.
+ * Documentation for top-level functions in the BindMe converters package.  The methods in this
+ * class serve as documentation for the public functions in this package.
  *
  * <p>
  * <em>Note:</em> This class exists as a workaround to an asdoc bug in Flex 3, which causes
@@ -32,7 +33,7 @@ public class Converters {
    * @param condition the condition to test for
    * @return an IThenValue to continue stubbing
    */
-  public static function ifValue(condition:Matcher):IThenConvertStubbing {
+  public static function ifValue( condition:Matcher ):IThenConvertStubbing {
     return com.overstock.bindme.converters.ifValue(condition);
   }
 
@@ -71,6 +72,14 @@ public class Converters {
   }
 
   /**
+   * Returns a converter function which converts a string to lower case.  Null strings are
+   * converted to null.
+   */
+  public static function toLowerCase():Function {
+    return com.overstock.bindme.converters.toLowerCase();
+  }
+
+  /**
    * Returns a var-arg converter function which returns the greatest value of the received
    * arguments.
    */
@@ -91,6 +100,14 @@ public class Converters {
    */
   public static function toNumber():Function {
     return com.overstock.bindme.converters.toNumber();
+  }
+
+  /**
+   * Returns a converter function which converts a string to upper case.  Null strings are
+   * converted to null.
+   */
+  public static function toUpperCase():Function {
+    return com.overstock.bindme.converters.toUpperCase();
   }
 
   /**
