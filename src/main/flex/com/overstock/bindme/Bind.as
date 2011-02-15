@@ -51,6 +51,15 @@ import com.overstock.bindme.util.setProperty;
  *         .toProperty(titleLabel, "text");
  * </pre>
  *
+ * <h4>Conditional conversion:</h4>
+ * <pre>
+ *     Bind.fromProperty(person, "name")
+ *         .convert(ifValue(isA(emptyString()))
+ *             .thenConvert(toConstant("This field is required"))
+ *             .elseConvert(toConstant(null)))
+ *         .toProperty(nameInput, "errorString");
+ * </pre>
+ *
  * <h4>Validate for conversion, convert, then validate converted value</h4>
  * <pre>
  *     Bind.fromProperty(ageInput, "text")

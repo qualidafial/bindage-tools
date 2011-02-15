@@ -27,6 +27,16 @@ public class Converters {
   }
 
   /**
+   * Begins stubbing for a conditional converter.
+   *
+   * @param condition the condition to test for
+   * @return an IThenValue to continue stubbing
+   */
+  public static function ifValue(condition:Matcher):IThenConvertStubbing {
+    return com.overstock.bindme.converters.ifValue(condition);
+  }
+
+  /**
    * Returns a converter function which converts null to the given value.
    */
   public static function nullToValue( valueIfNull:Object ):Function {
