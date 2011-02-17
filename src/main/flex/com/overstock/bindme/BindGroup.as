@@ -48,16 +48,18 @@ public class BindGroup {
    */
   public function callExclusively( func:Function,
                                    ...rest ):* {
-    if (running) {
-      return null;
+    var result:Object = null;
+
+    if (!running) {
+      try {
+        running = true;
+        result = func.apply(null, rest);
+      } finally {
+        running = false;
+      }
     }
 
-    try {
-      running = true;
-      return func.apply(null, rest);
-    } finally {
-      running = false;
-    }
+    return result;
   }
 
 }

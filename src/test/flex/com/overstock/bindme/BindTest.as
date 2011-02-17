@@ -114,7 +114,7 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test]
-  public function fromNestedNonStringPropertyToProperty():void {
+  public function fromNestedCustomPropertyToProperty():void {
     source.foo = new ArrayCollection([ new Bean() ]);
     source.foo[0].bar = 1;
 
@@ -148,13 +148,23 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test( expected="ArgumentError" )]
-  public function fromNonStringPropertyMissingName():void {
+  public function fromCustomPropertyMissingName():void {
     Bind.fromProperty(source, { getter: source.receive });
   }
 
   [Test( expected="ArgumentError" )]
-  public function fromNonStringPropertyMissingGetter():void {
+  public function fromCustomPropertyMissingGetter():void {
     Bind.fromProperty(source, { name: "foo" });
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromCustomPropertyBadName():void {
+    Bind.fromProperty(source, { name: 42, getter: source.receive });
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromCustomPropertyBadGetter():void {
+    Bind.fromProperty(source, { name: "foo", getter: 42 });
   }
 
   [Test( expected="ArgumentError" )]
@@ -169,8 +179,20 @@ public class BindTest implements ILoggingTarget {
         .toProperty(target, { name: "bar" });
   }
 
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyToCustomPropertyBadName():void {
+    Bind.fromProperty(source, "foo")
+        .toProperty(target, { name: 42, setter: target.receive });
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyToCustomPropertyBadSetter():void {
+    Bind.fromProperty(source, "foo")
+        .toProperty(target, { name: "bar", setter: 42 });
+  }
+
   [Test]
-  public function fromNonStringPropertyToProperty():void {
+  public function fromCustomPropertyToProperty():void {
     var list:ArrayCollection = new ArrayCollection([ 1 ]);
 
     Bind.fromProperty(list, itemAt(0))
@@ -186,7 +208,7 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test]
-  public function fromPropertyToNonStringProperty():void {
+  public function fromPropertyToCustomProperty():void {
     source.foo = 1;
     var list:ArrayCollection = new ArrayCollection([ null ]);
 
@@ -203,7 +225,7 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test]
-  public function fromPropertyToNestedNonStringProperty():void {
+  public function fromPropertyToNestedCustomProperty():void {
     source.foo = 1;
     target.bar = new ArrayCollection([ new Bean() ]);
 
