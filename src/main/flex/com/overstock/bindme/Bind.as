@@ -5,8 +5,7 @@ import com.overstock.bindme.util.applyArgs;
 import com.overstock.bindme.util.setProperty;
 
 /**
- * A factory for creating binding pipelines between arbitrary <code>[Bindable]</code>
- * properties.
+ * A factory for creating binding pipelines between arbitrary <code>[Bindable]</code> properties.
  *
  * <h3>Examples:</h3>
  *
