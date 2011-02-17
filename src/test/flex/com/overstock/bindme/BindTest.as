@@ -685,6 +685,37 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test]
+  public function fromAllLogToProperty():void {
+    logEvents = [];
+    Log.addTarget(this);
+
+    source.foo = "ABC";
+    source.bar = "123";
+
+    Bind.fromAll(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(source, "bar")
+        )
+        .log(LogEventLevel.INFO, "{0}'s and {1}'s")
+        .toProperty(target, "baz");
+
+    assertThat(logEvents,
+               hasItem(hasProperties({
+                 level: LogEventLevel.INFO,
+                 message: "ABC's and 123's"
+               })));
+
+    source.foo = "XYZ";
+    source.bar = "pdq";
+
+    assertThat(logEvents,
+               hasItem(hasProperties({
+                 level: LogEventLevel.INFO,
+                 message: "XYZ's and pdq's"
+               })));
+  }
+
+  [Test]
   public function twoWay():void {
     source.foo = 10;
     target.bar = null;
