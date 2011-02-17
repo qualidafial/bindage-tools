@@ -60,14 +60,6 @@ public class PipelineBuilder implements IPipelineBuilder {
       throw new ArgumentError("target was null");
     }
 
-    if (null == properties) {
-      throw new ArgumentError("properties was null");
-    }
-
-    if (properties.length == 0) {
-      throw new ArgumentError("properties was empty");
-    }
-
     checkCustomGetterProperties(properties.slice(0, properties.length - 1));
     checkCustomSetterProperty(properties[properties.length - 1]);
 
