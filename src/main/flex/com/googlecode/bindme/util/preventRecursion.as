@@ -1,0 +1,45 @@
+/*
+ * The contents of this file are subject to the Mozilla Public License
+ * Version 1.1 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ * 
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific language governing rights and limitations
+ * under the License.
+ * 
+ * The Original Code is "BindMe Data Binding Framework for Flex ActionScript 3."
+ * 
+ * The Initial Developer of the Original Code is Overstock.com.
+ * Portions created by Overstock.com are Copyright (C) 2011.
+ * All Rights Reserved.
+ * 
+ * Contributor(s):
+ * - Matthew Hall, Overstock.com <qualidafial@gmail.com> 
+ */
+
+package com.googlecode.bindme.util {
+
+/**
+ * Wraps the specified function in a function that will not recurse.  If this function is invoked
+ * inside itself, the inner invocation returns immediately.
+ *
+ * @param func the function to wrap
+ * @return a recursion-proof wrapper around the given function.
+ */
+public function preventRecursion( func:Function ):Function {
+  var running:Boolean = false;
+  return function( ...values ):* {
+    if (!running) {
+      try {
+        running = true;
+        func.apply(null, values);
+      } finally {
+        running = false;
+      }
+    }
+  }
+}
+
+}
