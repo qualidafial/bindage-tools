@@ -1,24 +1,84 @@
+<!-- 
+
+    The contents of this file are subject to the Mozilla Public License
+    Version 1.1 (the "License"); you may not use this file except in
+    compliance with the License. You may obtain a copy of the License at
+    http://www.mozilla.org/MPL/
+    
+    Software distributed under the License is distributed on an "AS IS"
+    basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+    License for the specific language governing rights and limitations
+    under the License.
+    
+    The Original Code is "BindMe Data Binding Framework for Flex ActionScript 3."
+    
+    The Initial Developer of the Original Code is Overstock.com.
+    Portions created by Overstock.com are Copyright (C) 2011.
+    All Rights Reserved.
+    
+    Contributor(s):
+    - Matthew Hall, Overstock.com <qualidafial@gmail.com> 
+
+-->
+
 <project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <artifactId>ostk-base-pom</artifactId>
-    <groupId>com.overstock</groupId>
-    <version>2.0.6</version>
-  </parent>
-
-  <groupId>com.overstock.flex</groupId>
+  <groupId>com.googlecode</groupId>
   <artifactId>BindMe</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>swc</packaging>
+
   <name>BindMe Data Binding Framework</name>
+
   <description>
     BindMe is an advanced data binding framework for Flex ActionScript 3.
   </description>
+
+  <url>http://code.google.com/p/bind-me/</url>
+
+  <licenses>
+    <license>
+      <name>Mozilla Public License 1.1+</name>
+      <url>http://www.mozilla.org/MPL/MPL-1.1.html</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Matthew Hall</name>
+      <email>qualidafial@gmail.com</email>
+    </developer>
+  </developers>
+
+  <issueManagement>
+    <system>Google Code Issue Tracker</system>
+    <url>http://code.google.com/p/bind-me/issues/list</url>
+  </issueManagement>
+
+  <scm>
+    <connection>scm:hg:https://bind-me.googlecode.com/hg/</connection>
+    <developerConnection>scm:hg:https://bind-me.googlecode.com/hg/</developerConnection>
+    <tag>tip</tag>
+    <url>http://code.google.com/p/bind-me/source/browse/</url>
+  </scm>
+
+  <distributionManagement>
+    <!-- TO DO -->
+  </distributionManagement>
+
+  <properties>
+    <copyright.year>2011</copyright.year>
+    <flexcompiler.version>3.5.0.12683</flexcompiler.version>
+    <!--<flexcompiler.version>4.0.0.14159</flexcompiler.version>-->
+
+    <flexmojos-maven-plugin.version>3.5.0</flexmojos-maven-plugin.version>
+    <!--<flexmojos-maven-plugin.version>3.8.0</flexmojos-maven-plugin.version>-->
+  </properties>
 
   <dependencies>
     <dependency>
@@ -155,7 +215,8 @@
               </windowTitle>
 
               <description>
-                API documentation for the ${project.name} ${project.version} data binding library
+                API documentation for the ${project.name} ${project.version} data binding
+                library
               </description>
 
               <packageDescriptions>
@@ -168,7 +229,8 @@
                 </com.overstock.bindme.converters>
 
                 <com.overstock.bindme.impl>
-                  Internal. Classes in this package are not considered public API, and are subject
+                  Internal. Classes in this package are not considered
+                  public API, and are subject
                   to change without notice.
                 </com.overstock.bindme.impl>
 
@@ -181,7 +243,8 @@
                 </com.overstock.bindme.properties>
 
                 <com.overstock.bindme.swiz>
-                  Swiz annotation processor for automatically setting up / tearing down data
+                  Swiz annotation processor for automatically setting up /
+                  tearing down data
                   bindings.
                 </com.overstock.bindme.swiz>
 
@@ -191,7 +254,8 @@
               </packageDescriptions>
 
               <footer>
-                Copyright &copy; ${copyright.year} Overstock.com. All Rights Reserved.
+                Copyright &copy;
+                ${copyright.year} Overstock.com and others. All Rights Reserved.
               </footer>
 
             </configuration>
@@ -200,14 +264,5 @@
       </plugin>
     </plugins>
   </reporting>
-
-  <properties>
-    <copyright.year>2011</copyright.year>
-    <flexcompiler.version>3.5.0.12683</flexcompiler.version>
-    <!--<flexcompiler.version>4.0.0.14159</flexcompiler.version>-->
-
-    <flexmojos-maven-plugin.version>3.5.0</flexmojos-maven-plugin.version>
-    <!--<flexmojos-maven-plugin.version>3.8.0</flexmojos-maven-plugin.version>-->
-  </properties>
 
 </project>
