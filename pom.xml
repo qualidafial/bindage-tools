@@ -23,7 +23,7 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.googlecode</groupId>
+  <groupId>com.googlecode.bindage-tools</groupId>
   <artifactId>bindage-tools</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>swc</packaging>
