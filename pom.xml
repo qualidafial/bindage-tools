@@ -82,6 +82,14 @@
       <releases> <enabled>true</enabled> </releases>
       <snapshots> <enabled>false</enabled> </snapshots>
     </repository>
+
+    <repository>
+      <!-- for asmock -->
+      <id>maven2-dev.java.net-repository</id>
+      <url>http://repository.sonatype.org/service/local/repositories/maven2-dev.java.net/content/</url>
+      <releases> <enabled>true</enabled> </releases>
+      <snapshots> <enabled>false</enabled> </snapshots>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -136,9 +144,10 @@
     </dependency>
 
     <dependency>
-      <groupId>asmock</groupId>
+      <groupId>net.sf.asmock</groupId>
       <artifactId>asmock</artifactId>
-      <version>1.0</version>
+      <version>0.9</version>
+      <!--<version>1.0</version>-->
       <type>swc</type>
       <scope>test</scope>
     </dependency>
