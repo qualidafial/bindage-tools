@@ -17,6 +17,7 @@
 package com.googlecode.bindagetools.converters {
 import org.flexunit.assertThat;
 import org.hamcrest.Matcher;
+import org.hamcrest.collection.hasItem;
 import org.hamcrest.object.equalTo;
 import org.mockito.integrations.given;
 import org.mockito.integrations.verify;
@@ -43,6 +44,16 @@ public class ToConditionTest {
 
     verify().that(matcher.matches("a"));
     verify().that(matcher.matches("b"));
+  }
+
+  [Test]
+  public function testToConditionMultipleValue():void {
+    var converter:Function = toCondition(hasItem(equalTo("a")));
+
+    assertThat(converter("a", "b"),
+               equalTo(true));
+    assertThat(converter("b", "c"),
+               equalTo(false));
   }
 
 }

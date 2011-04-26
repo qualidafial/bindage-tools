@@ -24,7 +24,8 @@ import org.hamcrest.Matcher;
  * @param condition the condition that pipeline value(s) will be tested against.
  */
 public function toCondition( condition:Matcher ):Function {
-  return function( value:* ):Boolean {
+  return function( ...values ):Boolean {
+    var value:* = values.length > 1 ? values : values[0];
     return condition.matches(value);
   }
 }
