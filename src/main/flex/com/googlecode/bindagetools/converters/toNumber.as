@@ -18,11 +18,11 @@ package com.googlecode.bindagetools.converters {
 
 /**
  * Returns a converter function which converts a <code>String</code> to a <code>Number</code>.
- * Empty strings are converted to null.
+ * Empty or whitespace-only strings are converted to null.
  */
 public function toNumber():Function {
   return function( value:String ):* {
-    return (value == null || value.length == 0)
+    return (value == null || value.match(/^\s*$/))
         ? null
         : Number(value);
   }

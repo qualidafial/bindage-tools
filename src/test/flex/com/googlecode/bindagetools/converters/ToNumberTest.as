@@ -26,10 +26,20 @@ public class ToNumberTest {
   [Test]
   public function testToNumber():void {
     var converter:Function = toNumber();
+
     assertThat(converter(null),
                equalTo(null));
 
     assertThat(converter(""),
+               equalTo(null));
+
+    assertThat(converter(" "),
+               equalTo(null));
+
+    assertThat(converter("\t"),
+               equalTo(null));
+
+    assertThat(converter("\n"),
                equalTo(null));
 
     assertThat(converter("1"),

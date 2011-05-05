@@ -112,7 +112,7 @@ public class Converters {
 
   /**
    * Returns a converter function which converts a <code>String</code> to a <code>Number</code>.
-   * Empty strings are converted to null.
+   * Empty or whitespace-only strings are converted to null.
    */
   public static function toNumber():Function {
     return com.googlecode.bindagetools.converters.toNumber();
