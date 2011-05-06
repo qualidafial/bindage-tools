@@ -276,8 +276,7 @@
               </windowTitle>
 
               <description>
-                API documentation for the ${project.name} ${project.version} data binding
-                library
+                API documentation for the ${project.name} ${project.version} data binding library
               </description>
 
               <packageDescriptions>
@@ -290,8 +289,7 @@
                 </com.googlecode.bindagetools.converters>
 
                 <com.googlecode.bindagetools.impl>
-                  Internal. Classes in this package are not considered
-                  public API, and are subject
+                  Internal. Classes in this package are not considered public API, and are subject
                   to change without notice.
                 </com.googlecode.bindagetools.impl>
 
@@ -304,8 +302,7 @@
                 </com.googlecode.bindagetools.properties>
 
                 <com.googlecode.bindagetools.swiz>
-                  Swiz annotation processor for automatically setting up /
-                  tearing down data
+                  Swiz annotation processor for automatically setting up / tearing down data
                   bindings.
                 </com.googlecode.bindagetools.swiz>
 
@@ -315,8 +312,7 @@
               </packageDescriptions>
 
               <footer>
-                Copyright &copy;
-                ${copyright.year} Overstock.com and others. All Rights Reserved.
+                Copyright &#169; ${copyright.year} Overstock.com and others. All Rights Reserved.
               </footer>
 
             </configuration>
