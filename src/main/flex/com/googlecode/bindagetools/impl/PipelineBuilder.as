@@ -63,6 +63,10 @@ public class PipelineBuilder implements IPipelineBuilder {
     return append(new LogStep(level, message));
   }
 
+  public function trace( message:String ):IPipelineBuilder {
+    return append(new TraceStep(message));
+  }
+
   public function validate( ...condition ):IPipelineBuilder {
     return append(new ValidateStep(condition));
   }

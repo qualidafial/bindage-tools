@@ -622,6 +622,29 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test( expected="ArgumentError" )]
+  public function fromPropertyTraceNullMessage():void {
+    Bind.fromProperty(source, "foo")
+        .trace(null);
+  }
+
+  [Test]
+  public function fromPropertyTraceToProperty():void {
+    source.foo = "abc";
+
+    Bind.fromProperty(source, "foo")
+        .trace("value is {0}")
+        .toProperty(target, "bar");
+
+    // Can't test trace function.  :'(
+    // assertThat(traceMessages,
+    //            hasItem("value is abc"));
+
+    // But I guess we can test that the pipeline didn't get stuck at trace..
+    assertThat(target.bar,
+               equalTo("abc"));
+  }
+
+  [Test( expected="ArgumentError" )]
   public function fromPropertyFormatNullFormat():void {
     Bind.fromProperty(source, "foo")
         .format(null);

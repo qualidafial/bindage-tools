@@ -111,6 +111,19 @@ public interface IPipelineBuilder {
                 message:String ):IPipelineBuilder;
 
   /**
+   * Appends a trace step to the end of the binding pipeline.  The given message is sent to the
+   * top-level <code>trace</code> function before sending the current value(s) to the next step in
+   * the pipeline.
+   *
+   * @param message the message to be traced. Similar to the <code>format</code> step, value(s) in
+   * the pipeline may be interpolated into the trace message using <code>{<i>index</i>}</code>
+   * notation, e.g. "nameInput.text changed to {0}"
+   * @return this IPipelineBuilder instance for method chaining.
+   * @throws ArgumentError if the message argument is null.
+   */
+  function trace( message:String ):IPipelineBuilder;
+
+  /**
    * Appends a validation step to the end of the binding pipeline.  The current value(s) are
    * (optionally transformed) and then validated against a <code>Matcher</code>.  If the value(s)
    * match, then the pipeline proceeds on to the next step with the same value(s).  If the value(s)
