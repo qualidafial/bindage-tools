@@ -80,6 +80,10 @@ public class PipelineBuilder implements IPipelineBuilder {
       throw new ArgumentError("target was null");
     }
 
+    if (properties.length == 1 && properties[0] is Array) {
+      properties = properties[0];
+    }
+
     checkCustomGetterProperties(properties.slice(0, properties.length - 1));
     checkCustomSetterProperty(properties[properties.length - 1]);
 

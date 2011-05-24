@@ -370,6 +370,30 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test]
+  public function fromPropertyArrayToProperty():void {
+    source.foo = "abc";
+    target.bar = null;
+
+    Bind.fromProperty(source, ["foo"])
+        .toProperty(target, "bar");
+
+    assertThat(target.bar,
+               equalTo("abc"));
+  }
+
+  [Test]
+  public function fromPropertyToPropertyArray():void {
+    source.foo = "abc";
+    target.bar = null;
+
+    Bind.fromProperty(source, "foo")
+        .toProperty(target, ["bar"]);
+
+    assertThat(target.bar,
+               equalTo("abc"));
+  }
+
+  [Test]
   public function fromPropertyToFunction():void {
     source.foo = "abc";
 

@@ -245,6 +245,8 @@ public class Bind {
    *   getter: function(source):* { <i>return property value</i> } }
    * </pre>
    * </li>
+   * <li>If <code>additionalProperties</code> is omitted, an Array containing the above
+   * elements.</li>
    * </ul>
    * @param additionalProperties (optional) any additional properties in the source property chain.
    * Valid values are same as the <code>property</code> parameter.

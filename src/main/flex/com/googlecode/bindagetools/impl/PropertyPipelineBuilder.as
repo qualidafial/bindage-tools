@@ -50,6 +50,10 @@ public class PropertyPipelineBuilder extends PipelineBuilder implements IPropert
       throw new ArgumentError("properties was empty");
     }
 
+    if (properties.length == 1 && properties[0] is Array) {
+      properties = properties[0];
+    }
+
     checkCustomGetterProperties(properties);
 
     var normalizedProperties:Array = normalizeProperties(properties);

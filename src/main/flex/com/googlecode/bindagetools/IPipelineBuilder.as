@@ -160,6 +160,8 @@ public interface IPipelineBuilder {
    * <li>An object in the form (last property only):<pre>
    * { name: <i>property name</i>,
    *   setter: function(target, value):void { <i>set target property to value</i> } }</pre></li>
+   * <li>If <code>additionalProperties</code> is omitted, an Array containing the above
+   * elements.</li>
    * </ul>
    * @param additionalProperties (optional) any additional properties in the property chain.  Valid
    * values are same as the <code>property</code> parameter.
