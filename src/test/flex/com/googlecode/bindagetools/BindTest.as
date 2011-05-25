@@ -1202,6 +1202,31 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test]
+  public function fromAllWithArrayTypeToFunction():void {
+    source.foo = "foo";
+    source.bar = [ "moo", "zoo", "bloo" ];
+
+    var receivedFoo:String = null;
+    var receivedBar:Array = null;
+
+    function handler( foo:String, bar:Array ):void {
+      receivedFoo = foo;
+      receivedBar = bar;
+    }
+
+    Bind.fromAll(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(source, "bar")
+        )
+        .toFunction(handler);
+
+    assertThat(receivedFoo,
+               equalTo("foo"));
+    assertThat(receivedBar,
+               array("moo", "zoo", "bloo"));
+  }
+
+  [Test]
   public function fromPropertyConvertToArrayToFunction():void {
     var receivedValues:Array = null;
 

@@ -63,7 +63,10 @@ public class MultiPipelineBuilder extends PipelineBuilder {
 
   private static function setArgPipeline( setArgument:Function,
                                           nextStep:Function ):Function {
-    return function( value:* ):void {
+    return function( ...values ):void {
+      var value:* = values.length == 1
+          ? values[0]
+          : values;
       setArgument(value);
       nextStep();
     };
