@@ -74,14 +74,16 @@ public class PipelineBuilder implements IPipelineBuilder {
   public function toProperty( target:Object,
                               property:Object,
                               ...additionalProperties ):IPipelineBuilder {
-    var properties:Array = [property].concat(additionalProperties);
+    var properties:Array;
+    if (property is Array && additionalProperties.length == 0) {
+      properties = property as Array;
+    }
+    else {
+      properties = [property].concat(additionalProperties);
+    }
 
     if (null == target) {
       throw new ArgumentError("target was null");
-    }
-
-    if (properties.length == 1 && properties[0] is Array) {
-      properties = properties[0];
     }
 
     checkCustomGetterProperties(properties.slice(0, properties.length - 1));
@@ -90,8 +92,14 @@ public class PipelineBuilder implements IPipelineBuilder {
     var normalizedProperties:* = normalizeProperties(properties);
 
     var setter:Function = applyArgs(setProperty, target, normalizedProperties);
+    var wrapSetter:Function = function( ...values ):void {
+      var value:* = values.length == 1
+          ? values[0]
+          : values;
+      setter(value);
+    }
 
-    return toFunction(setter);
+    return toFunction(wrapSetter);
   }
 
   protected static function checkCustomGetterProperties( properties:Array ):void {
@@ -174,7 +182,14 @@ public class PipelineBuilder implements IPipelineBuilder {
   }
 
   private function buildPipeline( func:Function ):Function {
-    var pipeline:Function = func;
+    var pipeline:Function = function( value:* ):void {
+      if (value is Array) {
+        func.apply(null, value as Array);
+      }
+      else {
+        func(value);
+      }
+    };
 
     for (var i:int = steps.length - 1; i >= 0; i--) {
       var step:IPipelineStep = steps[i];

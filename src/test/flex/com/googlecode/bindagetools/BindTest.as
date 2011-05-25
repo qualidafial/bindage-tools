@@ -1181,6 +1181,49 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test]
+  public function fromAllToFunction():void {
+    var receivedValues:Array = null;
+
+    function receiver( ...values ):void {
+      receivedValues = values;
+    }
+
+    source.foo = "abc";
+    source.bar = "def";
+
+    Bind.fromAll(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(source, "bar")
+        )
+        .toFunction(receiver);
+
+    assertThat(receivedValues,
+               array("abc", "def"));
+  }
+
+  [Test]
+  public function fromPropertyConvertToArrayToFunction():void {
+    var receivedValues:Array = null;
+
+    function receiver( ...values ):void {
+      receivedValues = values;
+    }
+
+    function toCharacterArray( value:String ):Array {
+      return value.split("");
+    }
+
+    source.foo = "abc";
+
+    Bind.fromProperty(source, "foo")
+        .convert(toCharacterArray)
+        .toFunction(receiver);
+
+    assertThat(receivedValues,
+               array("a", "b", "c"));
+  }
+
+  [Test]
   public function groupBindings():void {
     source.foo = 1;
 
