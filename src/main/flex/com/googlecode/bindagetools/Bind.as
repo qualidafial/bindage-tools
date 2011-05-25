@@ -257,7 +257,14 @@ public class Bind {
   public static function fromProperty( source:Object,
                                        property:Object,
                                        ... additionalProperties ):IPropertyPipelineBuilder {
-    return new PropertyPipelineBuilder(source, [property].concat(additionalProperties));
+    var properties:Array;
+    if (property is Array && additionalProperties.length == 0) {
+      properties = property as Array;
+    } else {
+      properties = [property].concat(additionalProperties);
+    }
+
+    return new PropertyPipelineBuilder(source, properties);
   }
 
   /**
