@@ -146,7 +146,7 @@ import com.googlecode.bindagetools.impl.SetterPipeline;
  *         Bind.fromProperty(userNameInput, "text"),
  *         Bind.fromProperty(passwordInput, "text")
  *         )
- *         .convert(toCondition(pipelineArgs(), everyItem(not(emptyString()))))
+ *         .convert(toCondition(args(), everyItem(not(emptyString()))))
  *         .toProperty(loginButton, "enabled");
  * </pre>
  *

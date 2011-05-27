@@ -20,7 +20,7 @@ package com.googlecode.bindagetools.converters {
  * Returns the pipeline arguments as an array.
  * @return the pipeline arguments as an array.
  */
-public function pipelineArgs():Function {
+public function args():Function {
   return function( ...rest ):Array {
     return rest;
   }

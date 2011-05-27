@@ -15,7 +15,7 @@
  */
 
 package com.googlecode.bindagetools {
-import com.googlecode.bindagetools.converters.pipelineArgs;
+import com.googlecode.bindagetools.converters.args;
 import com.googlecode.bindagetools.converters.emptyStringToNull;
 import com.googlecode.bindagetools.converters.toCondition;
 import com.googlecode.bindagetools.converters.toNumber;
@@ -803,7 +803,7 @@ public class BindTest implements ILoggingTarget {
         Bind.fromProperty(source, "bar")
         )
         .log(LogEventLevel.INFO, "{0}'s and {1}'s")
-        .convert(pipelineArgs())
+        .convert(args())
         .toProperty(target, "baz");
 
     assertThat(logEvents,
@@ -1078,7 +1078,7 @@ public class BindTest implements ILoggingTarget {
         Bind.fromProperty(source, "foo"),
         Bind.fromProperty(source, "bar")
         )
-        .convert(pipelineArgs())
+        .convert(args())
         .toProperty(target, "baz");
 
     assertThat(target.baz,
@@ -1136,7 +1136,7 @@ public class BindTest implements ILoggingTarget {
         Bind.fromProperty(source, "bar")
         )
         .validate(greaterThan(0), lessThan(10))
-        .convert(pipelineArgs())
+        .convert(args())
         .toProperty(target, "baz");
 
     assertThat(target.baz,
@@ -1181,7 +1181,7 @@ public class BindTest implements ILoggingTarget {
         Bind.fromProperty(source, "bar")
         )
         .validate(anything())
-        .convert(pipelineArgs())
+        .convert(args())
         .toProperty(target, "baz");
   }
 
@@ -1192,7 +1192,7 @@ public class BindTest implements ILoggingTarget {
         Bind.fromProperty(source, "bar")
         )
         .validate(anything(), anything(), anything())
-        .convert(pipelineArgs())
+        .convert(args())
         .toProperty(target, "baz");
   }
 
@@ -1206,7 +1206,7 @@ public class BindTest implements ILoggingTarget {
         Bind.fromProperty(source, "bar")
         )
         .validate(sum, lessThan(5))
-        .convert(pipelineArgs())
+        .convert(args())
         .toProperty(target, "baz");
 
     assertThat(target.baz,

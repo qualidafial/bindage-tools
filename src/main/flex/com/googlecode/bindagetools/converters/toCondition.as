@@ -73,7 +73,7 @@ public function toCondition( ...conditions:Array ):Function {
       }
     }
 
-    attribute = pipelineArgs();
+    attribute = args();
     condition = array(conditions);
     expectedArgs = conditions.length;
   }

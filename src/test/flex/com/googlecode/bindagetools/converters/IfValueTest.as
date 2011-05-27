@@ -166,7 +166,7 @@ public class IfValueTest {
                                             return value % 2 == 1;
                                           });
 
-    var converter:Function = ifValue(pipelineArgs(), hasItem(isOdd))
+    var converter:Function = ifValue(args(), hasItem(isOdd))
         .thenConvert(toProduct)
         .elseConvert(toSum);
 

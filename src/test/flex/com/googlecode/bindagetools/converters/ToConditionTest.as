@@ -130,7 +130,7 @@ public class ToConditionTest {
 
   [Test]
   public function testToConditionFunctionWithMatcher():void {
-    var converter:Function = toCondition(pipelineArgs(), hasItem(equalTo("a")));
+    var converter:Function = toCondition(args(), hasItem(equalTo("a")));
 
     assertThat(converter("a", "b"),
                equalTo(true));

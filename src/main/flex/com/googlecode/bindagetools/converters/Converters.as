@@ -77,8 +77,8 @@ public class Converters {
    * Returns the pipeline arguments as an array.
    * @return the pipeline arguments as an array.
    */
-  public static function pipelineArgs():Function {
-    return com.googlecode.bindagetools.converters.pipelineArgs();
+  public static function args():Function {
+    return com.googlecode.bindagetools.converters.args();
   }
 
   /**
