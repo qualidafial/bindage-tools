@@ -35,7 +35,7 @@ public class Matchers {
    * @param a the first condition
    * @param b the second condition
    */
-  public static function xor(a:Matcher, b:Matcher):Matcher {
+  public static function xor( a:Matcher, b:Matcher ):Matcher {
     return com.googlecode.bindagetools.matchers.xor(a, b);
   }
 

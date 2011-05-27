@@ -17,9 +17,9 @@
 -->
 
 <project
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -79,16 +79,25 @@
     <repository>
       <id>flex-mojos-repository</id>
       <url>http://repository.sonatype.org/content/groups/flexgroup/</url>
-      <releases> <enabled>true</enabled> </releases>
-      <snapshots> <enabled>false</enabled> </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </repository>
 
     <repository>
       <!-- for asmock -->
       <id>maven2-dev.java.net-repository</id>
-      <url>http://repository.sonatype.org/service/local/repositories/maven2-dev.java.net/content/</url>
-      <releases> <enabled>true</enabled> </releases>
-      <snapshots> <enabled>false</enabled> </snapshots>
+      <url>http://repository.sonatype.org/service/local/repositories/maven2-dev.java.net/content/
+      </url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </repository>
   </repositories>
 
@@ -96,8 +105,12 @@
     <pluginRepository>
       <id>flex-mojos-repository</id>
       <url>http://repository.sonatype.org/content/groups/flexgroup/</url>
-      <releases> <enabled>true</enabled> </releases>
-      <snapshots> <enabled>false</enabled> </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </pluginRepository>
   </pluginRepositories>
 
@@ -142,8 +155,6 @@
       <type>rb.swc</type>
       <scope>test</scope>
     </dependency>
-
-
 
     <dependency>
       <groupId>hamcrest-as3</groupId>
