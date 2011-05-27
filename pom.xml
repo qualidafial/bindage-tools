@@ -5,7 +5,7 @@
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-    
+
        http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
@@ -25,7 +25,7 @@
 
   <groupId>com.googlecode.bindage-tools</groupId>
   <artifactId>bindage-tools</artifactId>
-  <version>0.0.4-SNAPSHOT</version>
+  <version>0.0.4</version>
   <packaging>swc</packaging>
 
   <name>BindageTools data binding framework for Flex ActionScript 3</name>
