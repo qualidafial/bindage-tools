@@ -16,25 +16,21 @@
 
 package com.googlecode.bindagetools.impl {
 import com.googlecode.bindagetools.IPipeline;
-import com.googlecode.bindagetools.IPipelineStep;
 
-/**
- * @private
- */
-public class TraceStep implements IPipelineStep {
+public class ConvertPipeline implements IPipeline {
 
-  private var message:String;
+  private var converter:Function;
+  private var next:IPipeline;
 
-  public function TraceStep( message:String ) {
-    if (message == null) {
-      throw new ArgumentError("Trace message was null");
-    }
-
-    this.message = message;
+  public function ConvertPipeline( converter:Function, next:IPipeline ) {
+    this.converter = converter;
+    this.next = next;
   }
 
-  public function wrap( next:IPipeline ):IPipeline {
-    return new TracePipeline(message, next);
+  public function run( args:Array ):void {
+    var convertedValue:* = converter.apply(null, args);
+
+    next.run([convertedValue]);
   }
 
 }

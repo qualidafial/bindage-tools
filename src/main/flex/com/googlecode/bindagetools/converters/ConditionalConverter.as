@@ -15,15 +15,13 @@
  */
 
 package com.googlecode.bindagetools.converters {
-import org.hamcrest.Matcher;
-
 internal class ConditionalConverter implements IThenConvertStubbing, IElseConvertStubbing {
-  private var condition:Matcher;
+  private var condition:Function;
   private var thenConverter:Function;
   private var elseConverter:Function;
 
-  public function ConditionalConverter( condition:Matcher ) {
-    this.condition = condition;
+  public function ConditionalConverter( conditions:Array ) {
+    condition = toCondition.apply(null, conditions);
   }
 
   public function thenConvert( thenConverter:Function ):IElseConvertStubbing {
@@ -36,14 +34,12 @@ internal class ConditionalConverter implements IThenConvertStubbing, IElseConver
     return convertConditionally;
   }
 
-  private function convertConditionally( value:* ):* {
-    var converterArgs:Array = (value is Array)
-        ? value as Array
-        : [value];
+  private function convertConditionally( ...values ):* {
+    var converter:Function = condition.apply(null, values)
+        ? thenConverter
+        : elseConverter;
 
-    return condition.matches(value)
-        ? thenConverter.apply(null, converterArgs)
-        : elseConverter.apply(null, converterArgs);
+    return converter.apply(null, values);
   }
 }
 

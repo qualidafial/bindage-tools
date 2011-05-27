@@ -58,10 +58,10 @@ public class PropertyPipelineBuilder extends PipelineBuilder implements IPropert
     this._properties = normalizedProperties;
   }
 
-  override protected function pipelineRunner( pipeline:Function ):Function {
+  override protected function pipelineRunner( pipeline:IPipeline ):Function {
     return function():void {
       var value:Object = getProperty(_source, _properties);
-      pipeline(value);
+      pipeline.run([value]);
     };
   }
 

@@ -15,6 +15,7 @@
  */
 
 package com.googlecode.bindagetools.impl {
+import com.googlecode.bindagetools.IPipeline;
 import com.googlecode.bindagetools.IPipelineBuilder;
 
 /**
@@ -36,11 +37,11 @@ public class MultiPipelineBuilder extends PipelineBuilder {
     this.sources = sources.slice();
   }
 
-  override protected function pipelineRunner( pipeline:Function ):Function {
+  override protected function pipelineRunner( pipeline:IPipeline ):Function {
     var args:Array = new Array(sources.length);
 
     function pipelineRunner():void {
-      pipeline(args.slice());
+      pipeline.run(args.slice());
     }
 
     var runner:Function = pipelineRunner;
@@ -48,8 +49,8 @@ public class MultiPipelineBuilder extends PipelineBuilder {
     for (var i:int = 0; i < sources.length; i++) {
       var source:IPipelineBuilder = sources[i];
 
-      var setArg:Function = setArgPipeline(argSetter(args, i), runner);
-      runner = source.runner(setArg);
+      var setArgAndContinue:IPipeline = new SetArgAndContinuePipeline(args, i, runner);
+      runner = source.runner(setArgAndContinue);
     }
 
     return runner;
@@ -58,24 +59,6 @@ public class MultiPipelineBuilder extends PipelineBuilder {
   override public function watch( handler:Function ):void {
     for each (var source:IPipelineBuilder in sources) {
       source.watch(handler);
-    }
-  }
-
-  private static function setArgPipeline( setArgument:Function,
-                                          nextStep:Function ):Function {
-    return function( ...values ):void {
-      var value:* = values.length == 1
-          ? values[0]
-          : values;
-      setArgument(value);
-      nextStep();
-    };
-  }
-
-  private static function argSetter( args:Array,
-                                     index:int ):Function {
-    return function( value:* ):void {
-      args[index] = value;
     }
   }
 

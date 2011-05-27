@@ -16,27 +16,28 @@
 
 package com.googlecode.bindagetools.impl {
 import com.googlecode.bindagetools.IPipeline;
-import com.googlecode.bindagetools.IPipelineStep;
+import com.googlecode.bindagetools.util.setProperty;
 
 /**
  * @private
  */
-public class TraceStep implements IPipelineStep {
+public class SetterPipeline implements IPipeline {
 
-  private var message:String;
+  private var target:Object;
+  private var properties:Array
 
-  public function TraceStep( message:String ) {
-    if (message == null) {
-      throw new ArgumentError("Trace message was null");
+  public function SetterPipeline( target:Object, properties:Array ) {
+    this.target = target;
+    this.properties = properties;
+  }
+
+  public function run( args:Array ):void {
+    if (args.length != 1) {
+      throw new ArgumentError("Expected 1 argument, received " + args.length);
     }
 
-    this.message = message;
+    var value:* = args[0];
+    setProperty(target, properties, value);
   }
-
-  public function wrap( next:IPipeline ):IPipeline {
-    return new TracePipeline(message, next);
-  }
-
 }
-
 }

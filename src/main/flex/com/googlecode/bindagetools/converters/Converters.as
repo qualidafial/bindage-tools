@@ -46,8 +46,21 @@ public class Converters {
   /**
    * Begins stubbing for a conditional converter.
    *
-   * @param condition the condition to test for
+   * @param condition the condition that pipeline arguments(s) will be tested against to decide
+   * conversion. Valid arguments:
+   * <ul>
+   * <li>A <code>function(arg0, arg1, ... argN):Boolean</code>.  In this case, the function is
+   * called with the pipeline arguments, and the result determines whether the pipeline continues
+   * executing.</li>
+   * <li>A <code>function(arg0, arg1, ... argN):* </code> followed by a <code>Matcher</code>. In
+   * this case the function is called with the pipeline argument(s), and the result is validated
+   * against the matcher.</li>
+   * <li>One or more <code>Matcher</code>s.  In this case, the pipeline argument(s) are validated
+   * against the corresponding matcher. In multi-source pipelines, there must be the same number of
+   * matchers as pipeline arguments</li>
+   * </ul>
    * @return an IThenValue to continue stubbing
+   * @throws ArgumentError if the validator arguments are invalid
    */
   public static function ifValue( condition:Matcher ):IThenConvertStubbing {
     return com.googlecode.bindagetools.converters.ifValue(condition);
@@ -61,6 +74,14 @@ public class Converters {
   }
 
   /**
+   * Returns the pipeline arguments as an array.
+   * @return the pipeline arguments as an array.
+   */
+  public static function pipelineArgs():Function {
+    return com.googlecode.bindagetools.converters.pipelineArgs();
+  }
+
+  /**
    * Returns a converter function which converts a boolean value to its inverse.
    */
   public static function toBooleanInverse():Function {
@@ -68,10 +89,22 @@ public class Converters {
   }
 
   /**
-   * Returns a converter function which returns a Boolean value indicating whether the value(s) in
-   * the pipeline match the specified condition.
+   * Returns a converter function which returns a Boolean value indicating whether the pipeline
+   * argument(s) match the specified condition.
    *
-   * @param condition the condition that pipeline value(s) will be tested against.
+   * @param condition the condition that pipeline argument(s) will be tested against. Valid values:
+   * <ul>
+   * <li>A <code>function(arg0, arg1, ... argN):Boolean</code>.  In this case, the function is
+   * called with the pipeline arguments, and the result determines whether the pipeline continues
+   * executing.</li>
+   * <li>A <code>function(arg0, arg1, ... argN):* </code> followed by a <code>Matcher</code>. In
+   * this case the function is called with the pipeline argument(s), and the result is validated
+   * against the matcher.</li>
+   * <li>One or more <code>Matcher</code>s.  In this case, the pipeline argument(s) are validated
+   * against the corresponding matcher. In multi-source pipelines, there must be the same number of
+   * matchers as pipeline arguments</li>
+   * </ul>
+   * @throws ArgumentError if the validator arguments are invalid
    */
   public static function toCondition( condition:Matcher ):Function {
     return com.googlecode.bindagetools.converters.toCondition(condition);

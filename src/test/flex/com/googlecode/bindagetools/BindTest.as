@@ -15,8 +15,10 @@
  */
 
 package com.googlecode.bindagetools {
+import com.googlecode.bindagetools.converters.pipelineArgs;
 import com.googlecode.bindagetools.converters.emptyStringToNull;
 import com.googlecode.bindagetools.converters.toCondition;
+import com.googlecode.bindagetools.converters.toNumber;
 import com.googlecode.bindagetools.properties.itemAt;
 import com.googlecode.bindagetools.util.unwatchAll;
 
@@ -31,14 +33,18 @@ import mx.logging.LogEventLevel;
 import org.flexunit.async.Async;
 import org.hamcrest.assertThat;
 import org.hamcrest.collection.array;
+import org.hamcrest.collection.everyItem;
 import org.hamcrest.collection.hasItem;
+import org.hamcrest.core.anything;
 import org.hamcrest.core.not;
 import org.hamcrest.number.greaterThan;
 import org.hamcrest.number.lessThan;
 import org.hamcrest.object.equalTo;
 import org.hamcrest.object.hasProperties;
 import org.hamcrest.object.instanceOf;
+import org.hamcrest.text.containsString;
 import org.hamcrest.text.re;
+import org.hamcrest.text.startsWith;
 
 public class BindTest implements ILoggingTarget {
 
@@ -478,15 +484,29 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test( expected="ArgumentError" )]
-  public function fromPropertyValidateFirstOfTwoArgsNotFunction():void {
+  public function fromPropertyValidateFirstOfTwoArgsNotValid():void {
     Bind.fromProperty(source, "foo")
         .validate("stuff", equalTo(null));
   }
 
   [Test( expected="ArgumentError" )]
-  public function fromPropertyValidateLastOfTwoArgsNotMatcher():void {
+  public function fromPropertyValidateMatcherAndInvalidArgument():void {
+    Bind.fromProperty(source, "foo")
+        .validate(lessThan(0), "foo");
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyValidateFunctionAndInvalidArgument():void {
     Bind.fromProperty(source, "foo")
         .validate(emptyStringToNull(), "stuff");
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromPropertyValidateFunctionWithMoreThanOneMatcher():void {
+    Bind.fromProperty(source, "foo")
+        .validate(emptyStringToNull(),
+                  containsString("foo"),
+                  startsWith("bar"));
   }
 
   [Test]
@@ -517,11 +537,12 @@ public class BindTest implements ILoggingTarget {
     source.foo = "abc";
     target.bar = "xyz";
 
+    function arbitraryStringValidation( value:String ):Boolean {
+      return value.length > 0 && value.length < 5 && value.charAt(1) == "a";
+    }
+
     Bind.fromProperty(source, "foo")
-        .validate(
-        function( value:String ):Boolean {
-          return value.length > 0 && value.length < 5 && value.charAt(1) == "a";
-        })
+        .validate(arbitraryStringValidation)
         .toProperty(target, "bar");
 
     assertThat(target.bar,
@@ -546,7 +567,7 @@ public class BindTest implements ILoggingTarget {
 
     Bind.fromProperty(source, "foo")
         .validate(re(integerPattern))
-        .convert(toNumber)
+        .convert(toNumber())
         .toProperty(target, "bar");
 
     assertThat(target.bar,
@@ -568,7 +589,7 @@ public class BindTest implements ILoggingTarget {
     target.bar = -1;
 
     Bind.fromProperty(source, "foo")
-        .convert(toNumber)
+        .convert(toNumber())
         .validate(greaterThan(5))
         .toProperty(target, "bar");
 
@@ -590,7 +611,7 @@ public class BindTest implements ILoggingTarget {
 
     Bind.fromProperty(source, "foo")
         .validate(re(integerPattern))
-        .convert(toNumber)
+        .convert(toNumber())
         .validate(greaterThan(5))
         .toProperty(target, "bar");
 
@@ -782,6 +803,7 @@ public class BindTest implements ILoggingTarget {
         Bind.fromProperty(source, "bar")
         )
         .log(LogEventLevel.INFO, "{0}'s and {1}'s")
+        .convert(pipelineArgs())
         .toProperty(target, "baz");
 
     assertThat(logEvents,
@@ -851,7 +873,7 @@ public class BindTest implements ILoggingTarget {
             .convert(numberToString),
         Bind.fromProperty(target, "bar")
             .validate(re(integerPattern))
-            .convert(toNumber)
+            .convert(toNumber())
             .validate(lessThan(10)));
   }
 
@@ -939,8 +961,7 @@ public class BindTest implements ILoggingTarget {
     var collected:Array = BindTracker.collect(createBindings);
 
     assertThat(collected,
-               array(instanceOf(ChangeWatcher),
-                     instanceOf(ChangeWatcher)));
+               everyItem(instanceOf(ChangeWatcher)));
 
     source.foo = 1;
     assertThat(target.bar,
@@ -1057,6 +1078,7 @@ public class BindTest implements ILoggingTarget {
         Bind.fromProperty(source, "foo"),
         Bind.fromProperty(source, "bar")
         )
+        .convert(pipelineArgs())
         .toProperty(target, "baz");
 
     assertThat(target.baz,
@@ -1104,7 +1126,7 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test]
-  public function fromAllValidate():void {
+  public function fromAllValidateMultipleMatchers():void {
     source.foo = 2;
     source.bar = 3;
     target.baz = null;
@@ -1113,8 +1135,8 @@ public class BindTest implements ILoggingTarget {
         Bind.fromProperty(source, "foo"),
         Bind.fromProperty(source, "bar")
         )
-        .validate(array(greaterThan(0),
-                        lessThan(10)))
+        .validate(greaterThan(0), lessThan(10))
+        .convert(pipelineArgs())
         .toProperty(target, "baz");
 
     assertThat(target.baz,
@@ -1152,6 +1174,28 @@ public class BindTest implements ILoggingTarget {
                      7));
   }
 
+  [Test( expected="ArgumentError" )]
+  public function fromAllValidateTooFewMatchers():void {
+    Bind.fromAll(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(source, "bar")
+        )
+        .validate(anything())
+        .convert(pipelineArgs())
+        .toProperty(target, "baz");
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function fromAllValidateTooManyMatchers():void {
+    Bind.fromAll(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(source, "bar")
+        )
+        .validate(anything(), anything(), anything())
+        .convert(pipelineArgs())
+        .toProperty(target, "baz");
+  }
+
   [Test]
   public function fromAllValidateAttribute():void {
     source.foo = 1;
@@ -1162,6 +1206,7 @@ public class BindTest implements ILoggingTarget {
         Bind.fromProperty(source, "bar")
         )
         .validate(sum, lessThan(5))
+        .convert(pipelineArgs())
         .toProperty(target, "baz");
 
     assertThat(target.baz,
@@ -1227,6 +1272,31 @@ public class BindTest implements ILoggingTarget {
   }
 
   [Test]
+  public function fromAllWithSingletonArrayTypeToFunction():void {
+    source.foo = "foo";
+    source.bar = [ "moo"];
+
+    var receivedFoo:String = null;
+    var receivedBar:Array = null;
+
+    function handler( foo:String, bar:Array ):void {
+      receivedFoo = foo;
+      receivedBar = bar;
+    }
+
+    Bind.fromAll(
+        Bind.fromProperty(source, "foo"),
+        Bind.fromProperty(source, "bar")
+        )
+        .toFunction(handler);
+
+    assertThat(receivedFoo,
+               equalTo("foo"));
+    assertThat(receivedBar,
+               array("moo"));
+  }
+
+  [Test]
   public function fromPropertyConvertToArrayToFunction():void {
     var receivedValues:Array = null;
 
@@ -1245,7 +1315,7 @@ public class BindTest implements ILoggingTarget {
         .toFunction(receiver);
 
     assertThat(receivedValues,
-               array("a", "b", "c"));
+               array(array("a", "b", "c")));
   }
 
   [Test]
@@ -1397,10 +1467,6 @@ public class BindTest implements ILoggingTarget {
     return value == null
         ? null
         : String(value);
-  }
-
-  private static function toNumber( value:String ):* {
-    return Number(value);
   }
 
   private static function toUpperCase( value:String ):String {

@@ -15,9 +15,8 @@
  */
 
 package com.googlecode.bindagetools.impl {
+import com.googlecode.bindagetools.IPipeline;
 import com.googlecode.bindagetools.IPipelineStep;
-
-import mx.utils.StringUtil;
 
 /**
  * @private
@@ -35,16 +34,8 @@ public class FormatStep implements IPipelineStep {
     this.format = format;
   }
 
-  public function wrapStep( nextStep:Function ):Function {
-    return function( value:* ):void {
-      var args:Array = (value is Array)
-          ? value
-          : [value];
-
-      var formattedValue:String = StringUtil.substitute.apply(null, [format].concat(args));
-
-      nextStep(formattedValue);
-    }
+  public function wrap( next:IPipeline ):IPipeline {
+    return new FormatPipeline(format, next);
   }
 
 }

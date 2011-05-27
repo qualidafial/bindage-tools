@@ -124,24 +124,26 @@ public interface IPipelineBuilder {
   function trace( message:String ):IPipelineBuilder;
 
   /**
-   * Appends a validation step to the end of the binding pipeline.  The current value(s) are
-   * (optionally transformed) and then validated against a <code>Matcher</code>.  If the value(s)
-   * match, then the pipeline proceeds on to the next step with the same value(s).  If the value(s)
-   * do not match, then the pipeline aborts execution.
+   * Appends a validation step to the end of the binding pipeline. The current pipeline argument(s)
+   * are (optionally transformed) and then validated using <code>Matcher</code>s. If the argument(s)
+   * match, then the pipeline proceeds on to the next step with the same argument(s). If the
+   * argument(s) do not match, then the pipeline aborts execution.
    *
-   * @param condition the condition that should be validated before proceeding.  Valid arguments:
+   * @param condition the condition that pipeline arguments will be validated against before
+   * proceeding to the next pipeline step.  Valid arguments:
    * <ul>
-   * <li>A <code>Matcher</code>.  In this case, the value(s) in the pipeline are validated
-   * against the matcher.</li>
    * <li>A <code>function(arg0, arg1, ... argN):Boolean</code>.  In this case, the function is
-   * called with the value(s) in the pipeline, and the result determines whether the pipeline
-   * continues executing.</li>
+   * called with the pipeline arguments, and the result determines whether the pipeline continues
+   * executing.</li>
    * <li>A <code>function(arg0, arg1, ... argN):* </code> followed by a <code>Matcher</code>. In
-   * this case the function is called with the value(s) in the pipeline, and the result is
-   * validated against the matcher.</li>
+   * this case the function is called with the pipeline argument(s), and the result is validated
+   * against the matcher.</li>
+   * <li>One or more <code>Matcher</code>s.  In this case, the pipeline argument(s) are validated
+   * against the corresponding matcher. In multi-source pipelines, there must be the same number of
+   * matchers as pipeline arguments</li>
    * </ul>
    * @return this IPipelineBuilder instance for method chaining.
-   * @throws ArgumentError if the validator argument is null
+   * @throws ArgumentError if the validator arguments are invalid
    */
   function validate( ...condition ):IPipelineBuilder;
 
@@ -188,12 +190,12 @@ public interface IPipelineBuilder {
    * value(s) and pushes them through the binding pipeline, with the final value(s) sent to the
    * specified pipeline function.
    *
-   * @param func a <code>function(value0, ...valueN):void</code> which will be invoked with the
-   * value(s) in the pipeline when returned runner is invoked.
+   * @param target an <code>IPipeline</code> which will be run with the pipeline argument(s) when
+   * the returned runner is invoked.
    * @return a <code>function():void</code> which, when invoked, runs the binding pipeline
-   * through to the specified pipeline function.
+   * through to the specified target pipeline.
    */
-  function runner( func:Function ):Function;
+  function runner( target:IPipeline ):Function;
 
   /**
    * Sets up event listeners, such that the specified function is invoked (with no arguments)

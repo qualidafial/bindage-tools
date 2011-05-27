@@ -15,66 +15,23 @@
  */
 
 package com.googlecode.bindagetools.impl {
+import com.googlecode.bindagetools.IPipeline;
 import com.googlecode.bindagetools.IPipelineStep;
-
-import org.hamcrest.Matcher;
-import org.hamcrest.object.equalTo;
+import com.googlecode.bindagetools.converters.toCondition;
 
 /**
  * @private
  */
 public class ValidateStep implements IPipelineStep {
 
-  private var func:Function;
-  private var matcher:Matcher;
+  private var condition:Function;
 
-  public function ValidateStep( args:Array ) {
-    if (args.length == 1) {
-      if (args[0] is Matcher) {
-        this.func = null;
-        this.matcher = args[0];
-      }
-      else if (args[0] is Function) {
-        this.func = args[0];
-        this.matcher = equalTo(true);
-      }
-      else {
-        throw usageError();
-      }
-    }
-    else if (args.length == 2) {
-      if (!(args[0] is Function && args[1] is Matcher)) {
-        throw usageError();
-      }
-
-      this.func = args[0];
-      this.matcher = args[1];
-    }
-    else {
-      throw usageError();
-    }
+  public function ValidateStep( conditions:Array ) {
+    condition = toCondition.apply(null, conditions);
   }
 
-  private static function usageError():ArgumentError {
-    throw new ArgumentError(
-        "Expecting arguments (attribute:Function, condition:Matcher) or (condition:Matcher)");
-  }
-
-  public function wrapStep( nextStep:Function ):Function {
-    return function( value:* ):void {
-      var matchValue:* = value;
-
-      if (func != null) {
-        var attributeArgs:Array = value is Array
-            ? value
-            : [value];
-        matchValue = func.apply(null, attributeArgs);
-      }
-
-      if (matcher.matches(matchValue)) {
-        nextStep(value);
-      }
-    }
+  public function wrap( next:IPipeline ):IPipeline {
+    return new ValidatePipeline(condition, next);
   }
 
 }

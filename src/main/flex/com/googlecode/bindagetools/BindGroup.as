@@ -56,26 +56,22 @@ public class BindGroup {
   }
 
   /**
-   * Calls the given function if this group is not already calling another function.  If this
-   * group is already calling another function, no action is taken.
+   * Runs the given pipeline if this group is not already running another pipeline.  If this group
+   * is already running another pipeline, no action is taken.
    *
-   * @param func the function to call
-   * @param rest the arguments to use when calling the function.
+   * @param pipeline the pipeline to run
+   * @param args the arguments to send to the pipeline.
    */
-  public function callExclusively( func:Function,
-                                   ...rest ):* {
-    var result:Object = null;
-
+  public function runExclusively( pipeline:IPipeline,
+                                  args:Array ):void {
     if (!running) {
       try {
         running = true;
-        result = func.apply(null, rest);
+        pipeline.run(args);
       } finally {
         running = false;
       }
     }
-
-    return result;
   }
 
 }

@@ -19,6 +19,8 @@ import org.flexunit.assertThat;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.collection.hasItem;
+import org.hamcrest.number.greaterThan;
+import org.hamcrest.number.greaterThanOrEqualTo;
 import org.hamcrest.number.lessThan;
 import org.hamcrest.object.equalTo;
 import org.hamcrest.object.hasProperty;
@@ -28,8 +30,49 @@ public class IfValueTest {
   function IfValueTest() {
   }
 
+  [Test( expected="ArgumentError" )]
+  public function ifValueNoArguments():void {
+    ifValue();
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function ifValueNullArgument():void {
+    ifValue(null);
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function ifValueNotMatcherOrFunction():void {
+    ifValue("foo");
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function ifValueFirstOfTwoArgsNotValid():void {
+    ifValue("foo", equalTo("foo"));
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function ifValueMatcherAndInvalidArgument():void {
+    ifValue(equalTo("foo"), "foo");
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function ifValueFunctionAndInvalidArgument():void {
+    function foo():void {
+    }
+
+    ifValue(foo, "bar");
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function ifValueFunctionWithMoreThanOneMatcher():void {
+    function foo():void {
+    }
+
+    ifValue(foo, greaterThanOrEqualTo(0), lessThan(100));
+  }
+
   [Test]
-  public function testIfValue():void {
+  public function ifValueSingleArgument():void {
     function toUpperCase( value:String ):String {
       return value.toUpperCase();
     }
@@ -49,7 +92,55 @@ public class IfValueTest {
   }
 
   [Test]
-  public function testIfValueMultipleValues():void {
+  public function ifValueFunction():void {
+    function lengthLessThanFive( value:String ):Boolean {
+      return value.length < 5;
+    }
+
+    var converter:Function = ifValue(lengthLessThanFive)
+        .thenConvert(toConstant("less than five"))
+        .elseConvert(toConstant("more than five"));
+
+    assertThat(converter("abc"),
+               equalTo("less than five"));
+    assertThat(converter("abcde"),
+               equalTo("more than five"));
+  }
+
+  [Test]
+  public function ifValueMultipleMatchers():void {
+    var converter:Function = ifValue(lessThan(0), greaterThan(0))
+        .thenConvert(toConstant("true"))
+        .elseConvert(toConstant("false"));
+
+    assertThat(converter(-1, 1),
+               equalTo("true"));
+    assertThat(converter(-1, -1),
+               equalTo("false"));
+    assertThat(converter(1, 1),
+               equalTo("false"));
+    assertThat(converter(1, -1),
+               equalTo("false"));
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function toConditionMatchersTooFewValues():void {
+    var converter:Function = ifValue(lessThan(0), greaterThan(0))
+        .thenConvert(toConstant("true"))
+        .elseConvert(toConstant("false"));
+    converter(-1);
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function toConditionMatchersTooManyValues():void {
+    var converter:Function = ifValue(lessThan(0), greaterThan(0))
+        .thenConvert(toConstant("true"))
+        .elseConvert(toConstant("false"));
+    converter(-1, 1, "blah");
+  }
+
+  [Test]
+  public function ifValueMultipleArguments():void {
     function toSum( ...addends ):Number {
       var result:Number = 0;
 
@@ -70,18 +161,19 @@ public class IfValueTest {
       return result;
     }
 
-    var isOdd:Matcher = new CustomMatcher("is odd", function( value:Number ):Boolean {
-      return value % 2 == 1;
-    });
+    var isOdd:Matcher = new CustomMatcher("is odd",
+                                          function( value:Number ):Boolean {
+                                            return value % 2 == 1;
+                                          });
 
-    var converter:Function = ifValue(hasItem(isOdd))
+    var converter:Function = ifValue(pipelineArgs(), hasItem(isOdd))
         .thenConvert(toProduct)
         .elseConvert(toSum);
 
-    assertThat(converter([0, 2, 4]), // no odd elements
+    assertThat(converter(0, 2, 4), // no odd elements
                equalTo(6)); // sum
 
-    assertThat(converter([2, 3, 4]), // 1 odd element
+    assertThat(converter(2, 3, 4), // 1 odd element
                equalTo(24)); // product
   }
 

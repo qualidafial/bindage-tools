@@ -16,25 +16,35 @@
 
 package com.googlecode.bindagetools.impl {
 import com.googlecode.bindagetools.IPipeline;
-import com.googlecode.bindagetools.IPipelineStep;
 
-/**
- * @private
- */
-public class TraceStep implements IPipelineStep {
+import flash.events.TimerEvent;
+import flash.utils.Timer;
 
-  private var message:String;
+public class DelayPipeline implements IPipeline {
 
-  public function TraceStep( message:String ) {
-    if (message == null) {
-      throw new ArgumentError("Trace message was null");
-    }
+  private var delayMillis:int;
+  private var next:IPipeline;
 
-    this.message = message;
+  private var timer:Timer = null;
+
+  public function DelayPipeline( delayMillis:int, next:IPipeline ) {
+    this.delayMillis = delayMillis;
+    this.next = next;
   }
 
-  public function wrap( next:IPipeline ):IPipeline {
-    return new TracePipeline(message, next);
+  public function run( args:Array ):void {
+    function timerElapsed( event:TimerEvent ):void {
+      next.run(args);
+      timer = null;
+    }
+
+    if (timer != null) {
+      timer.stop();
+    }
+
+    timer = new Timer(delayMillis, 1);
+    timer.addEventListener(TimerEvent.TIMER_COMPLETE, timerElapsed);
+    timer.start();
   }
 
 }

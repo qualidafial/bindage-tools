@@ -15,6 +15,7 @@
  */
 
 package com.googlecode.bindagetools.impl {
+import com.googlecode.bindagetools.IPipeline;
 import com.googlecode.bindagetools.IPipelineStep;
 
 import mx.logging.ILogger;
@@ -49,15 +50,8 @@ public class LogStep implements IPipelineStep {
     this.message = message;
   }
 
-  public function wrapStep( nextStep:Function ):Function {
-    return function( value:* ):void {
-      var args:Array = (value is Array)
-          ? value
-          : [value];
-      logger.log.apply(null, [level, message].concat(args));
-
-      nextStep(value);
-    }
+  public function wrap( next:IPipeline ):IPipeline {
+    return new LogPipeline(level, message, next);
   }
 
 }

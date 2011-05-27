@@ -26,7 +26,7 @@ public interface IPipelineStep {
    * executes this step, and calls the next step with the same value(s) when finished.
    * @param next the next step in the pipeline.
    */
-  function wrapStep( next:Function ):Function;
+  function wrap( next:IPipeline ):IPipeline;
 
 }
 

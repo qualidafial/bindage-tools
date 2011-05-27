@@ -18,7 +18,11 @@ package com.googlecode.bindagetools.converters {
 import org.flexunit.assertThat;
 import org.hamcrest.Matcher;
 import org.hamcrest.collection.hasItem;
+import org.hamcrest.number.greaterThan;
+import org.hamcrest.number.greaterThanOrEqualTo;
+import org.hamcrest.number.lessThan;
 import org.hamcrest.object.equalTo;
+import org.hamcrest.object.sameInstance;
 import org.mockito.integrations.given;
 import org.mockito.integrations.verify;
 
@@ -31,8 +35,49 @@ public class ToConditionTest {
   [Mock]
   public var matcher:Matcher;
 
+  [Test( expected="ArgumentError" )]
+  public function toConditionNoArguments():void {
+    toCondition();
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function toConditionNullArgument():void {
+    toCondition(null);
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function toConditionNotMatcherOrFunction():void {
+    toCondition("foo");
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function toConditionFirstOfTwoArgsNotValid():void {
+    toCondition("foo", equalTo("foo"));
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function toConditionMatcherAndInvalidArgument():void {
+    toCondition(equalTo("foo"), "foo");
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function toConditionFunctionAndInvalidArgument():void {
+    function foo():void {
+    }
+
+    toCondition(foo, "bar");
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function toConditionFunctionWithMoreThanOneMatcher():void {
+    function foo():void {
+    }
+
+    toCondition(foo, greaterThanOrEqualTo(0), lessThan(100));
+  }
+
   [Test]
-  public function testToCondition():void {
+  public function toConditionMatcher():void {
     given(matcher.matches("a")).willReturn(true);
     given(matcher.matches("b")).willReturn(false);
 
@@ -47,8 +92,45 @@ public class ToConditionTest {
   }
 
   [Test]
-  public function testToConditionMultipleValue():void {
-    var converter:Function = toCondition(hasItem(equalTo("a")));
+  public function toConditionFunction():void {
+    function lessThanZero( value:Number ):Boolean {
+      return value < 0;
+    }
+
+    var converter:Function = toCondition(lessThanZero);
+    assertThat(converter,
+               sameInstance(lessThanZero));
+  }
+
+  [Test]
+  public function toConditionMatchers():void {
+    var converter:Function = toCondition(lessThan(0), greaterThan(0));
+
+    assertThat(converter(-1, 1),
+               equalTo(true));
+    assertThat(converter(-1, -1),
+               equalTo(false));
+    assertThat(converter(1, 1),
+               equalTo(false));
+    assertThat(converter(1, -1),
+               equalTo(false));
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function toConditionMatchersTooFewValues():void {
+    var converter:Function = toCondition(lessThan(0), greaterThan(0));
+    converter(-1);
+  }
+
+  [Test( expected="ArgumentError" )]
+  public function toConditionMatchersTooManyValues():void {
+    var converter:Function = toCondition(lessThan(0), greaterThan(0));
+    converter(-1, 1, "blah");
+  }
+
+  [Test]
+  public function testToConditionFunctionWithMatcher():void {
+    var converter:Function = toCondition(pipelineArgs(), hasItem(equalTo("a")));
 
     assertThat(converter("a", "b"),
                equalTo(true));

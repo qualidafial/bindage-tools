@@ -15,10 +15,8 @@
  */
 
 package com.googlecode.bindagetools.impl {
+import com.googlecode.bindagetools.IPipeline;
 import com.googlecode.bindagetools.IPipelineStep;
-
-import flash.events.TimerEvent;
-import flash.utils.Timer;
 
 /**
  * @private
@@ -31,23 +29,8 @@ public class DelayStep implements IPipelineStep {
     this.delayMillis = delayMillis;
   }
 
-  public function wrapStep( nextStep:Function ):Function {
-    var timer:Timer = null;
-
-    return function( value:* ):void {
-      function timerElapsed( event:TimerEvent ):void {
-        nextStep(value);
-      }
-
-      if (timer != null) {
-        timer.stop();
-        timer = null;
-      }
-
-      timer = new Timer(delayMillis, 1);
-      timer.addEventListener(TimerEvent.TIMER_COMPLETE, timerElapsed);
-      timer.start();
-    }
+  public function wrap( next:IPipeline ):IPipeline {
+    return new DelayPipeline(delayMillis, next);
   }
 
 }

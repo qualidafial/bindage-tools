@@ -14,29 +14,16 @@
  * limitations under the License.
  */
 
-package com.googlecode.bindagetools.impl {
-import com.googlecode.bindagetools.IPipeline;
-import com.googlecode.bindagetools.IPipelineStep;
+package com.googlecode.bindagetools.converters {
 
 /**
- * @private
+ * Returns the pipeline arguments as an array.
+ * @return the pipeline arguments as an array.
  */
-public class TraceStep implements IPipelineStep {
-
-  private var message:String;
-
-  public function TraceStep( message:String ) {
-    if (message == null) {
-      throw new ArgumentError("Trace message was null");
-    }
-
-    this.message = message;
+public function pipelineArgs():Function {
+  return function( ...rest ):Array {
+    return rest;
   }
-
-  public function wrap( next:IPipeline ):IPipeline {
-    return new TracePipeline(message, next);
-  }
-
 }
 
 }

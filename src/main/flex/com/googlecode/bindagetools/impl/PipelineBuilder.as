@@ -16,11 +16,10 @@
 
 package com.googlecode.bindagetools.impl {
 import com.googlecode.bindagetools.BindGroup;
+import com.googlecode.bindagetools.IPipeline;
 import com.googlecode.bindagetools.IPipelineBuilder;
 import com.googlecode.bindagetools.IPipelineStep;
-import com.googlecode.bindagetools.util.applyArgs;
 import com.googlecode.bindagetools.util.preventRecursion;
-import com.googlecode.bindagetools.util.setProperty;
 
 import flash.events.Event;
 
@@ -91,15 +90,9 @@ public class PipelineBuilder implements IPipelineBuilder {
 
     var normalizedProperties:* = normalizeProperties(properties);
 
-    var setter:Function = applyArgs(setProperty, target, normalizedProperties);
-    var wrapSetter:Function = function( ...values ):void {
-      var value:* = values.length == 1
-          ? values[0]
-          : values;
-      setter(value);
-    }
+    var setterTarget:IPipeline = new SetterPipeline(target, normalizedProperties);
 
-    return toFunction(wrapSetter);
+    return toPipeline(setterTarget);
   }
 
   protected static function checkCustomGetterProperties( properties:Array ):void {
@@ -159,7 +152,11 @@ public class PipelineBuilder implements IPipelineBuilder {
   }
 
   public function toFunction( func:Function ):IPipelineBuilder {
-    var pipelineRunner:Function = runner(func);
+    return toPipeline(new FunctionPipeline(func));
+  }
+
+  private function toPipeline( target:IPipeline ):IPipelineBuilder {
+    var pipelineRunner:Function = runner(target);
     pipelineRunner = preventRecursion(pipelineRunner);
 
     function handler( event:Event ):void {
@@ -173,23 +170,16 @@ public class PipelineBuilder implements IPipelineBuilder {
     return this;
   }
 
-  public function runner( func:Function ):Function {
-    var pipeline:Function = buildPipeline(func);
+  public function runner( target:IPipeline ):Function {
+    var pipeline:IPipeline = buildPipeline(target);
 
     var runner:Function = pipelineRunner(pipeline);
 
     return runner;
   }
 
-  private function buildPipeline( func:Function ):Function {
-    var pipeline:Function = function( value:* ):void {
-      if (value is Array) {
-        func.apply(null, value as Array);
-      }
-      else {
-        func(value);
-      }
-    };
+  private function buildPipeline( toWrap:IPipeline ):IPipeline {
+    var pipeline:IPipeline = toWrap;
 
     for (var i:int = steps.length - 1; i >= 0; i--) {
       var step:IPipelineStep = steps[i];
@@ -200,7 +190,7 @@ public class PipelineBuilder implements IPipelineBuilder {
         pipeline = wrapPipelineInGroups(pipeline);
       }
 
-      pipeline = step.wrapStep(pipeline);
+      pipeline = step.wrap(pipeline);
     }
 
     pipeline = wrapPipelineInGroups(pipeline);
@@ -208,15 +198,15 @@ public class PipelineBuilder implements IPipelineBuilder {
     return pipeline;
   }
 
-  private function wrapPipelineInGroups( pipeline:Function ):Function {
-    var result:Function = pipeline;
+  private function wrapPipelineInGroups( pipeline:IPipeline ):IPipeline {
+    var result:IPipeline = pipeline;
     for each (var group:BindGroup in groups) {
-      result = applyArgs(group.callExclusively, result);
+      result = new GroupPipeline(group, result);
     }
     return result;
   }
 
-  protected function pipelineRunner( pipeline:Function ):Function {
+  protected function pipelineRunner( pipeline:IPipeline ):Function {
     throw new Error("abstract methods");
   }
 

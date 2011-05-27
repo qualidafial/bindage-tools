@@ -15,6 +15,7 @@
  */
 
 package com.googlecode.bindagetools.impl {
+import com.googlecode.bindagetools.IPipeline;
 import com.googlecode.bindagetools.IPipelineStep;
 
 /**
@@ -32,15 +33,8 @@ public class ConvertStep implements IPipelineStep {
     this.converter = converter;
   }
 
-  public function wrapStep( nextStep:Function ):Function {
-    return function( value:* ):void {
-      var values:Array = value is Array
-          ? value
-          : [value];
-
-      var convertedValue:* = converter.apply(null, values);
-      nextStep(convertedValue);
-    }
+  public function wrap( next:IPipeline ):IPipeline {
+    return new ConvertPipeline(converter, next);
   }
 
 }

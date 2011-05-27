@@ -14,28 +14,18 @@
  * limitations under the License.
  */
 
-package com.googlecode.bindagetools.impl {
-import com.googlecode.bindagetools.IPipeline;
-import com.googlecode.bindagetools.IPipelineStep;
+package com.googlecode.bindagetools {
 
 /**
- * @private
+ * A data binding pipeline.
  */
-public class TraceStep implements IPipelineStep {
+public interface IPipeline {
 
-  private var message:String;
-
-  public function TraceStep( message:String ) {
-    if (message == null) {
-      throw new ArgumentError("Trace message was null");
-    }
-
-    this.message = message;
-  }
-
-  public function wrap( next:IPipeline ):IPipeline {
-    return new TracePipeline(message, next);
-  }
+  /**
+   * Invokes the pipeline with the specified data values.
+   * @param args the data values in the pipeline.
+   */
+  function run( args:Array ):void;
 
 }
 

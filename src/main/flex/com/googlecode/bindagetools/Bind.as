@@ -17,8 +17,7 @@
 package com.googlecode.bindagetools {
 import com.googlecode.bindagetools.impl.MultiPipelineBuilder;
 import com.googlecode.bindagetools.impl.PropertyPipelineBuilder;
-import com.googlecode.bindagetools.util.applyArgs;
-import com.googlecode.bindagetools.util.setProperty;
+import com.googlecode.bindagetools.impl.SetterPipeline;
 
 /**
  * A factory for creating binding pipelines between arbitrary <code>[Bindable]</code> properties.
@@ -147,7 +146,7 @@ import com.googlecode.bindagetools.util.setProperty;
  *         Bind.fromProperty(userNameInput, "text"),
  *         Bind.fromProperty(passwordInput, "text")
  *         )
- *         .convert(toCondition(everyItem(not(emptyString()))))
+ *         .convert(toCondition(pipelineArgs(), everyItem(not(emptyString()))))
  *         .toProperty(loginButton, "enabled");
  * </pre>
  *
@@ -260,7 +259,8 @@ public class Bind {
     var properties:Array;
     if (property is Array && additionalProperties.length == 0) {
       properties = property as Array;
-    } else {
+    }
+    else {
       properties = [property].concat(additionalProperties);
     }
 
@@ -336,12 +336,10 @@ public class Bind {
     var sourcePipeline:IPropertyPipelineBuilder = IPropertyPipelineBuilder(source);
     var targetPipeline:IPropertyPipelineBuilder = IPropertyPipelineBuilder(target);
 
-    var sourceSetter:Function = applyArgs(setProperty,
-                                          sourcePipeline.source,
-                                          sourcePipeline.properties);
-    var targetSetter:Function = applyArgs(setProperty,
-                                          targetPipeline.source,
-                                          targetPipeline.properties);
+    var sourceSetter:IPipeline = new SetterPipeline(sourcePipeline.source,
+                                                    sourcePipeline.properties);
+    var targetSetter:IPipeline = new SetterPipeline(targetPipeline.source,
+                                                    targetPipeline.properties);
 
     var sourceToTargetRunner:Function = source.runner(targetSetter);
     var targetToSourceRunner:Function = target.runner(sourceSetter);

@@ -15,26 +15,21 @@
  */
 
 package com.googlecode.bindagetools.impl {
+import com.googlecode.bindagetools.BindGroup;
 import com.googlecode.bindagetools.IPipeline;
-import com.googlecode.bindagetools.IPipelineStep;
 
-/**
- * @private
- */
-public class TraceStep implements IPipelineStep {
+public class GroupPipeline implements IPipeline {
 
-  private var message:String;
+  private var group:BindGroup;
+  private var next:IPipeline;
 
-  public function TraceStep( message:String ) {
-    if (message == null) {
-      throw new ArgumentError("Trace message was null");
-    }
-
-    this.message = message;
+  public function GroupPipeline( group:BindGroup, next:IPipeline ) {
+    this.group = group;
+    this.next = next;
   }
 
-  public function wrap( next:IPipeline ):IPipeline {
-    return new TracePipeline(message, next);
+  public function run( args:Array ):void {
+    group.runExclusively(next, args);
   }
 
 }
