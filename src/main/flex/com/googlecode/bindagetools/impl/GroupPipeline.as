@@ -29,7 +29,7 @@ public class GroupPipeline implements IPipeline {
   }
 
   public function run( args:Array ):void {
-    group.runExclusively(next, args);
+    group.callExclusively(next.run, args);
   }
 
 }
