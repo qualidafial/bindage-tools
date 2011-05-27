@@ -25,7 +25,7 @@
 
   <groupId>com.googlecode.bindage-tools</groupId>
   <artifactId>bindage-tools</artifactId>
-  <version>0.0.4</version>
+  <version>0.0.5-SNAPSHOT</version>
   <packaging>swc</packaging>
 
   <name>BindageTools data binding framework for Flex ActionScript 3</name>
