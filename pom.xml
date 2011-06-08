@@ -251,6 +251,17 @@
           <configurationReport>true</configurationReport>
           <strict>true</strict>
 
+          <namespaces>
+            <namespace>
+              <uri>http://bindage-tools.googlecode.com/</uri>
+              <manifest>${basedir}/src/main/resources/manifest.xml</manifest>
+            </namespace>
+          </namespaces>
+
+          <includeNamespaces>
+            <namespace>http://bindage-tools.googlecode.com/</namespace>
+          </includeNamespaces>
+
           <keepAs3Metadatas>
             <keepAs3Metadata>DataBinding</keepAs3Metadata>
           </keepAs3Metadatas>
