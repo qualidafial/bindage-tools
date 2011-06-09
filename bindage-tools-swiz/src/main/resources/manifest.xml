@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<componentPackage>
+  <component class="com.googlecode.bindagetools.swiz.DataBindingMetadataTag"/>
+  <component id="DataBindingProcessor"
+             class="com.googlecode.bindagetools.swiz.DataBindingProcessor" />
+</componentPackage>

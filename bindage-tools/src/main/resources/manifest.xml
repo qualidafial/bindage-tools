@@ -48,9 +48,6 @@
   <component class="com.googlecode.bindagetools.matchers.xor"/>
   <component class="com.googlecode.bindagetools.matchers.XorMatcher"/>
   <component class="com.googlecode.bindagetools.properties.itemAt"/>
-  <component class="com.googlecode.bindagetools.swiz.DataBindingMetadataTag"/>
-  <component id="DataBindingProcessor"
-             class="com.googlecode.bindagetools.swiz.DataBindingProcessor" />
   <component class="com.googlecode.bindagetools.util.applyArgs"/>
   <component class="com.googlecode.bindagetools.util.getProperty"/>
   <component class="com.googlecode.bindagetools.util.preventRecursion"/>

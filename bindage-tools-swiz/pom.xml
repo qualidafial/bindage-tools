@@ -1,0 +1,192 @@
+<!-- 
+
+   Copyright 2011 Overstock.com and others.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+-->
+
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.googlecode.bindage-tools</groupId>
+  <artifactId>bindage-tools-swiz</artifactId>
+  <version>0.0.5-SNAPSHOT</version>
+  <packaging>swc</packaging>
+
+  <parent>
+    <groupId>com.googlecode.bindage-tools</groupId>
+    <artifactId>bindage-tools-parent</artifactId>
+    <version>0.0.5-SNAPSHOT</version>
+  </parent>
+
+  <name>BindageTools annotation processors for Swiz</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.googlecode.bindage-tools</groupId>
+      <artifactId>bindage-tools</artifactId>
+      <version>${project.version}</version>
+      <type>swc</type>
+      <scope>external</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.adobe.flex.framework</groupId>
+      <artifactId>framework</artifactId>
+      <type>swc</type>
+      <scope>external</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.adobe.flex.framework</groupId>
+      <artifactId>playerglobal</artifactId>
+      <type>swc</type>
+      <classifier>9</classifier>
+      <scope>external</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.adobe.flex.framework</groupId>
+      <artifactId>framework</artifactId>
+      <type>rb.swc</type>
+      <scope>external</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.adobe.flex.framework</groupId>
+      <artifactId>rpc</artifactId>
+      <type>swc</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.adobe.flex.framework</groupId>
+      <artifactId>rpc</artifactId>
+      <type>rb.swc</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>hamcrest-as3</groupId>
+      <artifactId>hamcrest-as3</artifactId>
+      <type>swc</type>
+      <scope>external</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.swizframework</groupId>
+      <artifactId>swiz</artifactId>
+      <type>swc</type>
+      <scope>external</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.adobe.flexunit</groupId>
+      <artifactId>flexunit</artifactId>
+      <type>swc</type>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <sourceDirectory>src/main/flex</sourceDirectory>
+    <testSourceDirectory>src/test/flex</testSourceDirectory>
+
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.flexmojos</groupId>
+        <artifactId>flexmojos-maven-plugin</artifactId>
+
+        <extensions>true</extensions>
+
+        <configuration>
+          <verboseStacktraces>true</verboseStacktraces>
+          <debug>true</debug>
+          <ignoreVersionIssues>false</ignoreVersionIssues>
+          <allowSourcePathOverlap>false</allowSourcePathOverlap>
+          <configurationReport>true</configurationReport>
+          <strict>true</strict>
+
+          <namespaces>
+            <namespace>
+              <uri>http://bindage-tools.googlecode.com/swiz</uri>
+              <manifest>${basedir}/src/main/resources/manifest.xml</manifest>
+            </namespace>
+          </namespaces>
+
+          <includeNamespaces>
+            <namespace>http://bindage-tools.googlecode.com/swiz</namespace>
+          </includeNamespaces>
+
+          <keepAs3Metadatas>
+            <keepAs3Metadata>DataBinding</keepAs3Metadata>
+          </keepAs3Metadatas>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.flexmojos</groupId>
+        <artifactId>flexmojos-maven-plugin</artifactId>
+
+        <reportSets>
+          <reportSet>
+            <id>flex-reports</id>
+            <reports>
+              <report>asdoc-report</report>
+            </reports>
+
+            <configuration>
+              <name>
+                ${project.name} ${project.version} API Documentation
+              </name>
+
+              <mainTitle>
+                ${project.name} ${project.version} API Documentation
+              </mainTitle>
+
+              <windowTitle>
+                ${project.name} ${project.version} API Documentation
+              </windowTitle>
+
+              <description>
+                API documentation for the ${project.name} ${project.version}
+              </description>
+
+              <packageDescriptions>
+                <com.googlecode.bindagetools.swiz>
+                  Swiz annotation processor for automatically setting up / tearing down data
+                  bindings.
+                </com.googlecode.bindagetools.swiz>
+              </packageDescriptions>
+
+              <footer>
+                Copyright &#169; ${copyright.year} Overstock.com and others. All Rights Reserved.
+              </footer>
+
+            </configuration>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+
+</project>
