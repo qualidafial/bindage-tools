@@ -23,16 +23,14 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.googlecode.bindage-tools</groupId>
-  <artifactId>bindage-tools</artifactId>
-  <version>0.0.5-SNAPSHOT</version>
-  <packaging>swc</packaging>
-
   <parent>
     <groupId>com.googlecode.bindage-tools</groupId>
     <artifactId>bindage-tools-parent</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.0.5</version>
   </parent>
+
+  <artifactId>bindage-tools</artifactId>
+  <packaging>swc</packaging>
 
   <name>BindageTools data binding framework for Flex+AS3</name>
 
@@ -145,6 +143,7 @@
       <plugin>
         <groupId>org.sonatype.flexmojos</groupId>
         <artifactId>flexmojos-maven-plugin</artifactId>
+        <version>${flexmojos-maven-plugin.version}</version>
 
         <reportSets>
           <reportSet>
