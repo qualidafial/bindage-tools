@@ -25,7 +25,7 @@
 
   <groupId>com.googlecode.bindage-tools</groupId>
   <artifactId>bindage-tools-parent</artifactId>
-  <version>0.0.5</version>
+  <version>0.0.6-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>BindageTools parent project</name>

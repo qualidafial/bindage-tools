@@ -26,7 +26,7 @@
   <parent>
     <groupId>com.googlecode.bindage-tools</groupId>
     <artifactId>bindage-tools-parent</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6-SNAPSHOT</version>
   </parent>
 
   <artifactId>bindage-tools-swiz</artifactId>
