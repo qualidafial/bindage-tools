@@ -1,0 +1,14 @@
+*.iml
+*.ipr
+*.iws
+*_temp_flexunit_config.xml
+
+.classpath
+.externalToolBuilders
+.project
+.settings/
+bin/
+bin-debug/
+lib/
+
+target/
